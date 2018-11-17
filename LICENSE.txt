@@ -1,5 +1,4 @@
-Copyright (c) G. B. Versiani.
-Copyright (c) Peter Wang.
+Copyright (c) Sherman Liu.
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
