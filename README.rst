@@ -1,4 +1,4 @@
-easyauth: A simplified authentication lib based on Django
+easyauth: A simplified authentication lib based on Django and Rest Framework
 ===========================================
 
 .. image:: https://img.shields.io/travis/qingfeng0820/easyauth/master.svg
@@ -29,11 +29,12 @@ Add easyauth in {Your app}/settings.py like below:
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        # Rest app
+        # Rest framework app
         'rest_framework',
-        'django_filters',
-        # easyauth app                   #<----  Add easyauth app here
+        # easyauth app                                                                  #<----  Add easyauth app here
         'easyauth',
+        # Your own app                                                                  #<----  Add your own app
+        'test'
     )
 
     REST_FRAMEWORK = {
@@ -42,7 +43,7 @@ Add easyauth in {Your app}/settings.py like below:
             'rest_framework.permissions.IsAuthenticated',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'easyauth.authentication.CsrfExemptSessionAuthentication',             #<---- Disable crsf check
+            'easyauth.authentication.CsrfExemptSessionAuthentication',                   #<---- Disable crsf check
             'rest_framework.authentication.BasicAuthentication'
         ),
         'DEFAULT_RENDERER_CLASSES': (
@@ -55,10 +56,7 @@ Add easyauth in {Your app}/settings.py like below:
             'rest_framework.parsers.FormParser',
             'rest_framework.parsers.MultiPartParser'
         ),
-        'DEFAULT_FILTER_BACKENDS': (
-            'django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter'
-        ),
-        'DEFAULT_PAGINATION_CLASS': 'easyauth.pagination.CustomizedPageNumberPagination',     #<--- Set default pagination
+        'DEFAULT_PAGINATION_CLASS': 'easyauth.pagination.CustomizedPageNumberPagination', #<--- Set default pagination
         'PAGE_SIZE': 500
     }
 
@@ -74,6 +72,10 @@ Create your own User Model (extends easyauth.models.AbstractUser) in {Your app}/
 
 
     class User(AbstractUser):
+        # you can define additional fields for your User Model
+
+        # You can specify the USERNAME_FIELD field, default is phone
+        # USERNAME_FIELD = {Other field to stand for username}
         pass
 
 
@@ -120,3 +122,30 @@ API List:
     - /api-auth/me GET: Get current login user
     - /api-auth/password/change POST: Change the current login user's password
     - /api-auth/register POST: Register User (This API can be disabled by configuration)
+
+
+easyauth Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add EASYAUTH_CONF in {Your app}/settings.py if you need to do some specific configuration:
+
+.. code-block:: python
+
+    EASYAUTH_CONF = {
+        'USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN': "12345678",
+        'ACCOUNT_LOGOUT_ON_GET': False,
+        'DISABLE_REGISTER': False,
+    }
+
++----------------------------------------+------------+--------------------------------------------------------------+
+| Configuration Item                     | Type       | Description                                                  |
++----------------------------------------+------------+--------------------------------------------------------------+
+| USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN     | string     | Define the default password for maintaining by administrator.|
+|                                        |            | Default value is 123456 for absent                           |
++----------------------------------------+------------+--------------------------------------------------------------+
+| ACCOUNT_LOGOUT_ON_GET                  | bool       | Switch for enabling GET method for logout API.               |
+|                                        |            | Default value is False for absent                            |
++----------------------------------------+------------+--------------------------------------------------------------+
+| DISABLE_REGISTER                       | bool       | Switch for disabling register API.                           |
+|                                        |            | Default value is False for absent                            |
++----------------------------------------+------------+--------------------------------------------------------------+
