@@ -30,10 +30,10 @@ class UserAdminApiTests(APITestCase):
         self._force_authenticate()
         user_model = get_user_model()
         url = reverse('easy_auth_user-me')
-        req_body = {user_model.USERNAME_FIELD: "13482787778", "first_name": "lll"}
+        req_body = {user_model.USERNAME_FIELD: "13482777788", "first_name": "lll"}
         resp = self.client.patch(url, req_body, format='json')
         self.assertEqual(status.HTTP_200_OK, resp.status_code)
-        key = {user_model.USERNAME_FIELD: "13482787778"}
+        key = {user_model.USERNAME_FIELD: "13482777788"}
         user = user_model.objects.get(**key)
         self.assertEqual("lll", user.first_name)
 

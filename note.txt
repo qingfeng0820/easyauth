@@ -1,0 +1,81 @@
+DB init
+python manage.py makemigrations
+python manage.py makemigrations test
+python manage.py migrate
+
+
+Query db
+sqlite_web  C:\mine\PycharmProjects\easyauth\db.sqlite3
+
+
+Create super user
+python manage.py createsuperuser
+
+
+Static file deployment
+python manage.py collectstatic
+
+
+Use FIXTURE files
+FIXTURE_DIRS = ('/path/to/api/fixtures/',) in settings.py
+case 1: testing
+dump DB data to json file: python manage.py dumpdata myapp > /path/to/api/fixtures/myapp.json
+add fixtures = ['myapp.json'] to you test file. Like test.py below:
+class TestFilterDeleteBiz(TestCase):
+        fixtures = ['bizs.json']
+        def setUp(self):
+            pass
+        def test_tolist_should_equal_filterdbizs(self):
+            delete_bizs = SETTINGS.DELETE_BIZCHANNEL
+            bizs = BizChannel.objects.exclude(name__in=delete_bizs)
+            append_user(bizs)
+            check_email_addrs = [ b.user['email'] for b in bizs]
+            to_list = get_TO_list()
+            is_equal = to_list == check_email_addrs
+            self.assertTrue(is_equal, "sorry ")
+
+case 2: init DB
+create initial_data.json in FIXTURE_DIRS:
+[
+    {
+        "model": "account.myaccounttype",
+        "pk": 1,
+        "fields": {
+            "name": "个人",
+        "usermodel":"MyUser"
+        }
+    },
+    {
+        "model": "account.myaccounttype",
+        "pk": 2,
+        "fields": {
+            "name": "职位",
+            "usermodel":"MyPosition"
+        }
+    },
+    {
+        "model": "account.myaccounttype",
+        "pk": 3,
+        "fields": {
+            "name": "部门",
+            "usermodel":"MyDept"
+        }
+    },
+    {
+        "model": "account.myaccounttype",
+        "pk": 4,
+        "fields": {
+            "name": "角色",
+            "usermodel":"MyRole"
+        }
+    }
+]
+python manage.py loaddata initial_data.json
+
+
+Upload to pip
+Update setuptools first:  pip install --upgrade setuptools
+Then: python setup.py sdist
+    This will create a dist folder containing all your distributions.
+    After unpacking the distribution file, you can simply install it using sudo python setup.py install.
+

@@ -8,7 +8,7 @@ from sys import path
 
 ########## PATH CONFIGURATION
 # Absolute filesystem path to the top-level project folder:
-APP_ROOT = dirname(abspath(__file__))
+APP_ROOT = dirname(dirname(abspath(__file__)))
 
 # Site name:
 APP_NAME = basename(APP_ROOT)
@@ -115,41 +115,38 @@ SECRET_KEY = r"a@m_u@22l@r0m)pgkm(unp2dll-14ms&aw%e-svhrdf$g657us"
 ########## END SECRET CONFIGURATION
 
 
-
-
-
-# ########## FIXTURE CONFIGURATION
-# # See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-FIXTURE_DIRS
-# FIXTURE_DIRS = (
-#     normpath(join(WK_DIR, 'fixtures')),
-# )
-# ########## END FIXTURE CONFIGURATION
+########## FIXTURE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-FIXTURE_DIRS
+FIXTURE_DIRS = (
+    normpath(join(WK_DIR, 'fixtures')),
+)
+########## END FIXTURE CONFIGURATION
 
 
 ########## TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
-# TEMPLATE_CONTEXT_PROCESSORS = (
-#     'django.contrib.auth.context_processors.auth',
-#     'django.core.context_processors.debug',
-#     'django.core.context_processors.i18n',
-#     'django.core.context_processors.media',
-#     'django.core.context_processors.static',
-#     'django.core.context_processors.tz',
-#     'django.contrib.messages.context_processors.messages',
-#     'django.core.context_processors.request',
-# )
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.request',
+)
 
 # # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
-# TEMPLATE_LOADERS = (
-#     'django.template.loaders.filesystem.Loader',
-#     'django.template.loaders.app_directories.Loader',
-# )
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
 
-# # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
-# TEMPLATE_DIRS = (
-#     normpath(join(WK_DIR, 'templates')),
-# )
-# ########## END TEMPLATE CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
+TEMPLATE_DIRS = (
+    normpath(join(WK_DIR, 'templates')),
+)
+########## END TEMPLATE CONFIGURATION
 
 
 ########## MIDDLEWARE CONFIGURATION
@@ -307,6 +304,6 @@ ALLOWED_HOSTS = ['*', ]
 
 EASYAUTH_CONF = {
     'USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN': "12345678",
-    'ACCOUNT_LOGOUT_ON_GET': False,
+    'ACCOUNT_LOGOUT_ON_GET': True,
     'DISABLE_REGISTER': False,
 }
