@@ -43,7 +43,7 @@ setup(
         'Topic :: Utilities',
         'License :: OSI Approved :: BSD License',
     ],
-    # exclude_package_data={'': ['test', 'note.txt', 'manage.py', 'db.sqlite3', '.gitignore', '.travis.yml']},
+    # exclude_package_data={'': ['test', 'note.txt', 'manage.py', 'debug.py', 'db.sqlite3', '.gitignore', '.travis.yml']},
     install_requires=read_requirements('requirements.txt'),
     tests_require=read_requirements('test-requirements.txt')
 )

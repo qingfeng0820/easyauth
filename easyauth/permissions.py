@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework.permissions import BasePermission, AllowAny
+from rest_framework.permissions import BasePermission, AllowAny, DjangoModelPermissions, IsAuthenticated
 
 
 class IsSuperUser(BasePermission):
@@ -27,7 +27,7 @@ class PermissionsAll(BasePermission):
 
     def has_permission(self, request, view):
         for permission in [permission() for permission in self.permission_classes]:
-            if not permission.has_permission(request, self):
+            if not permission.has_permission(request, view):
                 return False
         return True
 
@@ -37,7 +37,7 @@ class PermissionsAny(BasePermission):
 
     def has_permission(self, request, view):
         for permission in [permission() for permission in self.permission_classes]:
-            if permission.has_permission(request, self):
+            if permission.has_permission(request, view):
                 return True
         return False
 
@@ -52,10 +52,7 @@ class DBBasedPermissionsAll(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated():
             return False
-        if not self.required_permission_names and \
-                not request.user.has_perm(self.required_permission_names):
-            return False
-        return True
+        return request.user.has_perms(self.required_permission_names)
 
 
 class DBBasedPermissionsAny(BasePermission):
@@ -64,8 +61,11 @@ class DBBasedPermissionsAny(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated():
             return False
-        if not self.required_permission_names:
-            for item in self.required_permission_names:
-                if request.user.has_perm(item):
-                    return True
+        for item in self.required_permission_names:
+            if request.user.has_perm(item):
+                return True
         return False
+
+
+class DjangoModelPermissionsWithAuthenticated(PermissionsAll):
+    permission_classes = (IsAuthenticated, DjangoModelPermissions)

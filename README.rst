@@ -117,16 +117,16 @@ Expose user admin APIs and user authentication related APIs in {Your app}/urls.p
 
 API List:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-- user group/role admin APIs
+- user group/role admin APIs (admin or super user)
     - /api/groups GET: Get all user groups
     - /api/groups POST: Create an user group  (Only accessed by super user)
     - /api/groups/[group_id] GET: Get an user group
     - /api/groups/[group_id] POST or PUT: Modify an user group (Only accessed by super user)
     - /api/groups/[group_id] DELETE: Delete an user group (Only accessed by super user)
 
-- user admin APIs
+- user admin APIs (admin or super user, if department enabled for user model, admin can only maintain users in the same department)
     - /api/users GET: Get all users
-    - /api/users POST: Create an user (With default password)
+    - /api/users POST: Create an user (With default password. Cannot create a super user via Rest API)
     - /api/users/[user_id] GET: Get a specific user
     - /api/users/[user_id] POST or PUT: Modify a specific user
     - /api/users/[user_id] DELETE: Delete a specific user
@@ -166,3 +166,5 @@ Add EASYAUTH_CONF in {Your app}/settings.py if you need to do some specific conf
 | DISABLE_REGISTER                       | bool       | Switch for disabling register API.                           |
 |                                        |            | Default value is False for absent                            |
 +----------------------------------------+------------+--------------------------------------------------------------+
+
+More examples please see the test app in this repo

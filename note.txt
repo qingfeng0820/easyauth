@@ -16,6 +16,18 @@ Static file deployment
 python manage.py collectstatic
 
 
+Use virtual env in terminal
+{your workspace}$ venv/Scripts/activate
+
+
+
+Upload to pip
+Update setuptools first:  pip install --upgrade setuptools
+Then: python setup.py sdist
+    This will create a dist folder containing all your distributions.
+    After unpacking the distribution file, you can simply install it using sudo python setup.py install.
+
+
 Use FIXTURE files
 FIXTURE_DIRS = ('/path/to/api/fixtures/',) in settings.py
 case 1: testing
@@ -73,9 +85,4 @@ create initial_data.json in FIXTURE_DIRS:
 python manage.py loaddata initial_data.json
 
 
-Upload to pip
-Update setuptools first:  pip install --upgrade setuptools
-Then: python setup.py sdist
-    This will create a dist folder containing all your distributions.
-    After unpacking the distribution file, you can simply install it using sudo python setup.py install.
 

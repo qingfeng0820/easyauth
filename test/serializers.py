@@ -15,3 +15,19 @@ class CompanySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Company
         depth = 1
+
+
+class DummyModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.DummyModel
+        fields = '__all__'
+        depth = 1
+
+
+class Dummy2ModelSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Dummy2Model
+        fields = '__all__'
+        depth = 1
