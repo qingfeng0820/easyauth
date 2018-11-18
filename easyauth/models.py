@@ -80,6 +80,8 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "phone"
 
+    USER_DEPART_FIELD = None
+
     objects = UserManager()
 
     class Meta:
@@ -98,12 +100,6 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         Returns the short name for the user.
         """
         return self.first_name
-
-    def register_pre_process(self, validate_data):
-        pass
-
-    def register_post_process(self):
-        pass
 
     def password_reset_pre_process(self, validate_data):
         pass

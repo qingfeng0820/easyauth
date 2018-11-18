@@ -46,3 +46,26 @@ class UserAdminPermission(PermissionsAny):
     permission_classes = (IsSuperUser, IsAdminUser)
 
 
+class DBBasedPermissionsAll(BasePermission):
+    required_permission_names = []
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated():
+            return False
+        if not self.required_permission_names and \
+                not request.user.has_perm(self.required_permission_names):
+            return False
+        return True
+
+
+class DBBasedPermissionsAny(BasePermission):
+    required_permission_names = []
+
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated():
+            return False
+        if not self.required_permission_names:
+            for item in self.required_permission_names:
+                if request.user.has_perm(item):
+                    return True
+        return False

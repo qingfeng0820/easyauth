@@ -5,15 +5,39 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth import (login as django_login, logout as django_logout)
+from django.contrib.auth.models import Group
 from rest_framework import viewsets, status
 from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from easyauth import conf
-from easyauth.permissions import UserAdminPermission
+from easyauth.permissions import UserAdminPermission, IsSuperUser
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
-    UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer
+    UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
+    GroupSerializer
+
+
+class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
+    maintain_permission_classes = (IsSuperUser, )
+    query_permission_classes = (UserAdminPermission, )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.is_query_permission = False
+        if request.method.lower() == "get":
+            self.is_query_permission = True
+        return super(viewsets.ModelViewSet, self).dispatch(request, *args, **kwargs)
+
+    def get_permissions(self):
+        self.permission_classes = self.maintain_permission_classes
+        if hasattr(self, 'is_query_permission') and self.is_query_permission:
+            self.permission_classes = self.query_permission_classes
+        return super(viewsets.ModelViewSet, self).get_permissions()
+
+
+class GroupViewSet(QueryLowPermAdminModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -25,6 +49,36 @@ class UserViewSet(viewsets.ModelViewSet):
                      'date_joined', 'last_login')
     ordering_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
                        'date_joined', 'last_login')
+
+    def dispatch(self, request, *args, **kwargs):
+        self.depart = None
+        user_model = get_user_model()
+        if user_model.USER_DEPART_FIELD is not None and request.user.is_authenticated() and not request.user.is_superuser:
+            self.depart = getattr(request.user, user_model.USER_DEPART_FIELD)
+
+        return super(viewsets.ModelViewSet, self).dispatch(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        if hasattr(self, 'depart') and self.depart is not None:
+            user_model = get_user_model()
+            depart_id = self.depart.id
+            request.data[user_model.USER_DEPART_FIELD] = depart_id
+        return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        if hasattr(self, 'depart') and self.depart is not None:
+            user_model = get_user_model()
+            depart_id = self.depart.id
+            request.data[user_model.USER_DEPART_FIELD] = depart_id
+        return super(viewsets.ModelViewSet, self).update(request, *args, **kwargs)
+
+    def get_queryset(self):
+        user_model = get_user_model()
+        self.queryset = user_model.objects.all()
+        if hasattr(self, 'depart') and self.depart is not None:
+            filter_prop = {user_model.USER_DEPART_FIELD: self.depart}
+            self.queryset = user_model.objects.filter(**filter_prop)
+        return super(viewsets.ModelViewSet, self).get_queryset()
 
 
 class AdminResetUsePwdView(GenericAPIView):
@@ -50,6 +104,7 @@ class AdminResetUsePwdView(GenericAPIView):
 class UserMeView(UpdateAPIView):
     queryset = get_user_model().objects.filter(is_active=True)
     serializer_class = UserDetailSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
         return Response(self.serializer_class(request.user).data)
@@ -71,6 +126,7 @@ class RegisterView(CreateAPIView):
 class PasswordResetView(GenericAPIView):
     queryset = get_user_model().objects.filter(is_active=True)
     serializer_class = UserPasswordResetSerializer
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         self.kwargs['pk'] = request.user.id
@@ -104,6 +160,7 @@ class LoginView(GenericAPIView):
 class LogoutView(GenericAPIView):
     queryset = get_user_model().objects.filter(is_active=True)
     serializer_class = UserLogoutSerializer
+    permission_classes = (IsAuthenticated,)
 
     def logout(self, request):
         self.kwargs['pk'] = request.user.id

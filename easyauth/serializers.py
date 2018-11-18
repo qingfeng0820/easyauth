@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
@@ -12,11 +13,16 @@ from easyauth import conf
 from util import text as _
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        exclude = ('is_superuser', 'password')
-        read_only_fields = ('date_joined', 'last_login', 'last_logout')
+        exclude = ('password', )
+        read_only_fields = ('is_superuser', 'date_joined', 'last_login', 'last_logout')
         extra_kwargs = {'date_joined': {'read_only': True},
                         'last_login': {'read_only': True}, 'last_logout': {'read_only': True}}
 
@@ -38,29 +44,18 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class UserRegisterSerializer(UserSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         exclude = ('is_staff', 'is_superuser', 'is_active', 'groups', 'user_permissions')
         read_only_fields = ('date_joined', 'last_login', 'last_logout')
         extra_kwargs = {'password': {'write_only': True}}
 
-    def is_valid(self, raise_exception=False):
-        user_model = get_user_model()
-        user = user_model(**self.initial_data)
-        user.register_pre_process(self.initial_data)
-        return super(UserRegisterSerializer, self).is_valid(raise_exception)
-
-    def save(self, **kwargs):
-        instance = super(UserRegisterSerializer, self).save(**kwargs)
-        instance.register_post_process()
-        return instance
-
     def update(self, instance, validated_data):
         pass
 
 
-class AdminResetUserPasswordSerializer(UserSerializer):
+class AdminResetUserPasswordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
@@ -82,7 +77,7 @@ class AdminResetUserPasswordSerializer(UserSerializer):
         pass
 
 
-class UserPasswordResetSerializer(UserSerializer):
+class UserPasswordResetSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField(source='password', max_length=128)
 
     class Meta:
@@ -133,7 +128,7 @@ class UserPasswordResetSerializer(UserSerializer):
         pass
 
 
-class UserLoginSerializer(UserSerializer):
+class UserLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = (get_user_model().USERNAME_FIELD, 'password')
@@ -172,7 +167,7 @@ class UserLoginSerializer(UserSerializer):
         pass
 
 
-class UserLogoutSerializer(UserSerializer):
+class UserLogoutSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ()
@@ -196,11 +191,15 @@ class UserLogoutSerializer(UserSerializer):
         pass
 
 
-class UserDetailSerializer(UserSerializer):
+class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        exclude = ('is_staff', 'is_superuser', 'is_active', 'groups', 'user_permissions', 'password')
-        read_only_fields = ('date_joined', 'last_login', 'last_logout')
+        exclude = ('is_active', 'password')
+        read_only_fields = ('is_staff', 'is_superuser', 'date_joined', 'last_login', 'last_logout', 'groups',
+                            'user_permissions', model.USERNAME_FIELD,) \
+            if model.USER_DEPART_FIELD is None \
+            else ('is_staff', 'is_superuser', 'date_joined', 'last_login',  'last_logout', 'groups',
+                  'user_permissions', model.USERNAME_FIELD,  model.USER_DEPART_FIELD)
 
     def create(self, validated_data):
         pass

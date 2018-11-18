@@ -37,6 +37,8 @@ Add easyauth in {Your app}/settings.py like below:
         'test'
     )
 
+    # If add django-filter app to INSTALLED_APPS, the easyauth APIs can support filter by fields' values
+
     REST_FRAMEWORK = {
         # Use Django's standard `django.contrib.auth` permissions,
         'DEFAULT_PERMISSION_CLASSES': (
@@ -61,7 +63,7 @@ Add easyauth in {Your app}/settings.py like below:
     }
 
 
-Sepcify your own User Model
+Specify your own User Model
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create your own User Model (extends easyauth.models.AbstractUser) in {Your app}/models.py:
@@ -74,8 +76,17 @@ Create your own User Model (extends easyauth.models.AbstractUser) in {Your app}/
     class User(AbstractUser):
         # you can define additional fields for your User Model
 
-        # You can specify the USERNAME_FIELD field, default is phone
+        # You can specify the USERNAME_FIELD field.
+        # Default is phone
         # USERNAME_FIELD = {Other field to stand for username}
+        # {Other field} = models.CharField(...)
+
+        # You can specify the USER_DEPART_FIELD field if you user model is grouped by department or company
+        # In this case, an admin in a company cannot maintain the users in other company
+        # Default value is None
+        # USER_DEPART_FIELD = "company"
+        # company = models.ForeignKey(Company, related_name='users', null=True)
+
         pass
 
 
@@ -106,6 +117,12 @@ Expose user admin APIs and user authentication related APIs in {Your app}/urls.p
 
 API List:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+- user group/role admin APIs
+    - /api/groups GET: Get all user groups
+    - /api/groups POST: Create an user group  (Only accessed by super user)
+    - /api/groups/[group_id] GET: Get an user group
+    - /api/groups/[group_id] POST or PUT: Modify an user group (Only accessed by super user)
+    - /api/groups/[group_id] DELETE: Delete an user group (Only accessed by super user)
 
 - user admin APIs
     - /api/users GET: Get all users

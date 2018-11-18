@@ -229,12 +229,12 @@ LOGGING = {
 
 ########## WSGI CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = '%s.wsgi.application' % APP_NAME
 ########## END WSGI CONFIGURATION
 
 ########## URL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = '%s.urls' % APP_NAME
 ########## END URL CONFIGURATION
 
 
