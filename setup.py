@@ -24,8 +24,7 @@ setup(
     url='https://github.com/qingfeng0820/easyauth',
     license=__import__('easyauth').__license__,
     # packages=find_packages(),
-    package_dir={'': 'easyauth'},
-    packages=find_packages(),
+    packages=find_packages(include=['easyauth']),
     description=(
         'A simplified authentication lib based on Django and Rest Framework.'
     ),

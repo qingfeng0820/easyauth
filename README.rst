@@ -11,6 +11,16 @@ License
 `BSD License <LICENSE.txt>`_
 
 
+Installation
+--------
+
+from pypi
+
+.. code-block:: python
+
+    pip install easyauth
+
+
 Tutorial
 --------
 
@@ -140,6 +150,7 @@ API List:
     - /api-auth/password/change POST: Change the current login user's password
     - /api-auth/register POST: Register User (This API can be disabled by configuration)
 
+You must start with creating a superuser in backend (operate DB directly or use command "python manage.py createsuperuser")
 
 easyauth Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

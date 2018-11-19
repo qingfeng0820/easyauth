@@ -1,4 +1,4 @@
-"""Common settings and globals."""
+"""Production settings."""
 
 
 from os.path import abspath, basename, dirname, join, normpath
@@ -183,7 +183,7 @@ LOCAL_APPS = (
     'rest_framework',
     #'django_filters',
     'easyauth',
-    'test'
+    '%s' % APP_NAME
 )
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -291,7 +291,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 500
 }
 
-AUTH_USER_MODEL = 'test.User'
+AUTH_USER_MODEL = '%s.User' % APP_NAME
 
 ########## SITE CONFIGURATION
 # Hosts/domain names that are valid for this site
