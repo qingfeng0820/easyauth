@@ -2,9 +2,8 @@
 from __future__ import unicode_literals
 
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 
-from easyauth.permissions import IsSuperUser, DjangoModelPermissionsWithAuthenticated
+from easyauth.permissions import IsSuperUser, DjangoModelPermissionsWithAuthenticated, IsAuthenticated
 from easyauth.views import QueryLowPermAdminModelViewSet
 from test import models, serializers
 from test.permissions import DummyModelMaintainPermission

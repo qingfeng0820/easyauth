@@ -52,7 +52,13 @@ Add easyauth in {Your app}/settings.py like below:
     REST_FRAMEWORK = {
         # Use Django's standard `django.contrib.auth` permissions,
         'DEFAULT_PERMISSION_CLASSES': (
-            'rest_framework.permissions.IsAuthenticated',
+            'easyauth.permissions.IsAuthenticated',                                      #<---- Default permission check
+			# Should not use rest_framework.permissions.IsAuthenticated here.
+			# Because this class is not compatible with Django 1.9 since rest framework 3.4
+			# If you want to use rest_framework.permissions.IsAuthenticated, please set rest framework to 3.3
+			# Why I use Django 1.9?
+			# rest_framework.renderers.BrowsableAPIRenderer is not work well for the Django version after 1.9?
+			# If you don't need BrowsableAPIRenderer, you can upgrade you Django version I think.
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
             'easyauth.authentication.CsrfExemptSessionAuthentication',                   #<---- Disable crsf check

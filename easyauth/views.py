@@ -5,17 +5,17 @@ import re
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth import (login as django_login, logout as django_logout)
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from rest_framework import viewsets, status
 from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from easyauth import conf
-from easyauth.permissions import UserAdminPermission, IsSuperUser
+from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticated
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
-    GroupSerializer
+    GroupSerializer, PermissionSerializer
 
 
 class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
@@ -38,6 +38,12 @@ class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
 class GroupViewSet(QueryLowPermAdminModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+
+class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+    permission_classes = (UserAdminPermission,)
 
 
 class UserViewSet(viewsets.ModelViewSet):

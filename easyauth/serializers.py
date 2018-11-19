@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.contrib.auth import get_user_model, authenticate
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
@@ -16,6 +16,13 @@ from util import text as _
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
+        fields = '__all__'
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,6 +32,8 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ('is_superuser', 'date_joined', 'last_login', 'last_logout')
         extra_kwargs = {'date_joined': {'read_only': True},
                         'last_login': {'read_only': True}, 'last_logout': {'read_only': True}}
+
+        depth = 1
 
     def create(self, validated_data):
         raw_password = conf.get_conf(conf.USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN)
@@ -200,6 +209,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             if model.USER_DEPART_FIELD is None \
             else ('is_staff', 'is_superuser', 'date_joined', 'last_login',  'last_logout', 'groups',
                   'user_permissions', model.USERNAME_FIELD,  model.USER_DEPART_FIELD)
+        depth = 1
 
     def create(self, validated_data):
         pass

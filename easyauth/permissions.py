@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from rest_framework.permissions import BasePermission, AllowAny, DjangoModelPermissions, IsAuthenticated
+from rest_framework.permissions import BasePermission, AllowAny, DjangoModelPermissions
+
+
+class AuthenticatedChecker(object):
+    @staticmethod
+    def is_authenticated(request):
+        return request.user and (request.user.is_authenticated() if callable(request.user.is_authenticated)
+                                 else request.user.is_authenticated)
 
 
 class IsSuperUser(BasePermission):
@@ -10,7 +17,7 @@ class IsSuperUser(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated() and request.user.is_superuser
+        return AuthenticatedChecker.is_authenticated(request) and request.user.is_superuser
 
 
 class IsAdminUser(BasePermission):
@@ -19,7 +26,12 @@ class IsAdminUser(BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated() and request.user.is_staff
+        return AuthenticatedChecker.is_authenticated(request) and request.user.is_staff
+
+
+class IsAuthenticated(BasePermission):
+    def has_permission(self, request, view):
+        return AuthenticatedChecker.is_authenticated(request)
 
 
 class PermissionsAll(BasePermission):
