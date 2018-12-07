@@ -185,3 +185,30 @@ Add EASYAUTH_CONF in {Your app}/settings.py if you need to do some specific conf
 +----------------------------------------+------------+--------------------------------------------------------------+
 
 More examples please see the test app in this repo
+
+
+DB init
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+python manage.py makemigrations
+python manage.py makemigrations {your app name}
+python manage.py migrate
+
+
+Create a super user
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+python manage.py createsuperuser
+
+
+ Run Test Server
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+python manage.py runserver 0.0.0.0:80
+

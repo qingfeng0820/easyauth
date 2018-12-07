@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-from __future__ import unicode_literals
+# from __future__ import unicode_literals
 
 from setuptools import setup, find_packages
-
+import easyauth.make_project as make_project
 
 __author__ = __import__('easyauth').__version__
 
@@ -14,6 +14,8 @@ def read_requirements(filename):
         return f.read().splitlines()
 
 
+print("preparing project skeleton...")
+make_project.prepare_project_skeleton_for_setup()
 setup(
     name='easyauth',
     version=__import__('easyauth').__version__,
@@ -25,13 +27,18 @@ setup(
     license=__import__('easyauth').__license__,
     # packages=find_packages(),
     packages=find_packages(include=['easyauth']),
+    include_package_data=False,
+    package_data={
+        'easyauth': make_project.get_package_data_for_setup('easyauth/static') +
+                    make_project.get_package_data_for_setup('easyauth/locale'),
+    },
+    data_files=make_project.get_data_files_for_setup(),
     description=(
-        'A simplified authentication lib based on Django and Rest Framework.'
+        'A simplified restful style authentication lib based on Django and Rest Framework.'
     ),
     long_description=open('README.rst').read(),
     keywords=['Authentication', 'Django'],
     platforms=["all"],
-    include_package_data=True,
     classifiers=[
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
@@ -44,5 +51,14 @@ setup(
     ],
     # exclude_package_data={'': ['test', 'note.txt', 'manage.py', 'debug.py', 'db.sqlite3', '.gitignore', '.travis.yml']},
     install_requires=read_requirements('requirements.txt'),
-    tests_require=read_requirements('test-requirements.txt')
+    tests_require=read_requirements('test-requirements.txt'),
+    entry_points = {
+        'console_scripts': [
+            'make_project = easyauth.make_project:main',
+        ]
+    }
+
 )
+
+print("clean prepared project skeleton")
+make_project.clean_prepared_project_skeleton_after_setup()

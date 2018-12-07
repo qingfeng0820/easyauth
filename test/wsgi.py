@@ -8,14 +8,10 @@ https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 """
 
 import os
-# from os.path import abspath, dirname
-# from sys import path
-#
-# SITE_ROOT = dirname(dirname(abspath(__file__)))
-# path.append(SITE_ROOT)
 
 from django.core.wsgi import get_wsgi_application
+import apps
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test.settings.production")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings.production" % apps.APP_NAME)
 
 application = get_wsgi_application()

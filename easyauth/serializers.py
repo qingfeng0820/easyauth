@@ -10,7 +10,7 @@ from rest_framework import serializers, exceptions
 from rest_framework.exceptions import ValidationError
 
 from easyauth import conf
-from util import text as _
+from django.utils.translation import ugettext_lazy as _
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -107,15 +107,13 @@ class UserPasswordResetSerializer(serializers.ModelSerializer):
                     if password == new_password:
                         err = ValidationError({'detail': _('The new password is same as before.')})
                     elif not user.password_reset_password_check(password):
-                        err = exceptions.AuthenticationFailed()
+                        err = exceptions.AuthenticationFailed({'detail': _('Credentials not correct.')})
                     else:
                         self.password_reset_user = user
                 else:
-                    err = ValidationError({'detail': _("Must include '%s' and '%s'." %
-                                                                ('password', 'new_password'))})
+                    err = ValidationError({'detail': _("Must provide password and  new_password.")})
         else:
-            err = exceptions.NotAuthenticated({'detail': _("Must include '%s' and '%s'." %
-                                                           ('password', 'new_password'))})
+            err = exceptions.AuthenticationFailed()
 
         if err and raise_exception:
             raise err
@@ -156,10 +154,13 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 else:
                     self.authencated_user = user
             else:
-                raise exceptions.AuthenticationFailed()
+                raise exceptions.AuthenticationFailed({'detail': _('Credentials not correct.')})
         else:
-            err = exceptions.NotAuthenticated({'detail': _("Must include '%s', '%s' and '%s'." %
-                                                           (user_model.USERNAME_FIELD, 'password', 'new_password'))})
+            # err = ValidationError({'detail': _("Must include '%{username}s' and '%{password}s'." % ({
+            #     'username': user_model.USERNAME_FIELD,
+            #     'password': 'password'
+            #     }))})
+            err = ValidationError({'detail': _("Must provide username and password.")})
 
         if err and raise_exception:
             raise err

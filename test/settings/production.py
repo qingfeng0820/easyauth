@@ -10,7 +10,7 @@ from sys import path
 # Absolute filesystem path to the top-level project folder:
 APP_ROOT = dirname(dirname(abspath(__file__)))
 
-# Site name:
+# App name:
 APP_NAME = basename(APP_ROOT)
 
 # Absolute filesystem path to the Django project directory:
@@ -56,6 +56,19 @@ DATABASES = {
 }
 ########## END DATABASE CONFIGURATION
 
+
+########## Cross-Origin Read Blocking CONFIGURATION
+# See: https://github.com/ottoyiu/django-cors-headers
+# CORS_ORIGIN_REGEX_WHITELIST = True
+# Or
+# CORS_ORIGIN_WHITELIST = (
+#     '<YOUR_DOMAIN>[:PORT]',
+# )
+# Or
+# CORS_ORIGIN_REGEX_WHITELIST = (r'^(https?://)?(\w+\.)?google\.com$', )
+# ...
+#
+########## END Cross-Origin Read Blocking CONFIGURATION
 
 ########## GENERAL CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
@@ -161,6 +174,9 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'easyauth.locale.SwitchLanguageMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 
@@ -182,6 +198,7 @@ DJANGO_APPS = (
 LOCAL_APPS = (
     'rest_framework',
     #'django_filters',
+    'corsheaders',
     'easyauth',
     '%s' % APP_NAME
 )
@@ -300,8 +317,11 @@ ALLOWED_HOSTS = ['*', ]
 ########## END SITE CONFIGURATION
 
 
+LOCALE_PATHS = ('/locale', )
+
 EASYAUTH_CONF = {
     'USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN': "12345678",
     'ACCOUNT_LOGOUT_ON_GET': True,
     'DISABLE_REGISTER': False,
+    'LANG_PARAM': 'lang',
 }

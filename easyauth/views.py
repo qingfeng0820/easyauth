@@ -155,10 +155,7 @@ class LoginView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=self.request.data, context={'request': request})
-        try:
-            serializer.is_valid(raise_exception=True)
-        except Exception as e:
-            return Response(data={'detail': e.detail}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer.is_valid(raise_exception=True)
 
         return self.login(request, serializer.authencated_user)
 

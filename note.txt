@@ -1,11 +1,11 @@
-DB init
+﻿DB init
 python manage.py makemigrations
 python manage.py makemigrations test
 python manage.py migrate
 
 
 Query db
-sqlite_web  C:\mine\PycharmProjects\easyauth\db.sqlite3
+sqlite_web  ./db.sqlite3
 
 
 Create super user
@@ -36,6 +36,14 @@ Upload with twine to Test PyPI and verify things look right. Twine will automati
 $ twine upload --repository-url https://test.pypi.org/legacy/ dist/*
 Upload to PyPI:
 $ twine upload dist/*
+
+
+
+
+Summary: Fixed Error "setup command: package_data must be a dictionary mapping package names to lists of wildcard patterns" for new extensions
+When a new extension is created using ./contrib/tools/generate_extension.py and running 'python setup.py develop' an error "setup command: package_data must be a dictionary mapping package names to lists of wildcard patterns" occurs. The problem is caused by the setup.py file importing future unicode literals because Python2 setuptools expects a "str" for parsing package_data.
+Now the future import has been removed, and the error no longer occurs.
+
 
 
 Use FIXTURE files
@@ -95,4 +103,77 @@ create initial_data.json in FIXTURE_DIRS:
 python manage.py loaddata initial_data.json
 
 
+django 国际化
+在项目的根目录下，也就是包含manage.py的目录下，运行下面的命令：
+
+django-admin makemessages -l de
+其中的de表示你要本地化的国家，例如pt_BR表示巴西葡萄牙语，奥地利德语为de_AT，印尼语为id。
+
+或者使用下面的方式：
+
+python manage.py makemessages -l zh_hans -e py -i venv -i test -i vue-ui -i build -i easyauth.egg-info
+//中文简体
+python manage.py makemessages -l en    //英文
+执行命令后，Django会在根目录及其子目录下搜集所有需要翻译的字符串，默认情况下它会搜索.html、.txt和.py文件，然后在根目录的locale/LANG/LC_MESSAGES目录下创建一个django.po文件。对于上面的例子，目录就是locale/de/LC_MESSAGES/，文件就是locale/de/LC_MESSAGES/django.po。
+
+注意：在Windows下，需要提前安装GNU gettext工具！
+否则会弹出下面的错误：
+
+CommandError: Can't find msguniq. Make sure you have GNU gettext tools 0.15 or newer installed.
+.po文件的格式非常简单！
+
+每个.po文件首先包含一小部分元数据，例如翻译维护者的联系信息，但文件的大部分是翻译对照：被翻译字符串和特定语言的实际翻译文本之间的简单映射。
+
+例如，有一个像下面这样的待翻译字符串：
+
+_("Welcome to my site.")
+在.po文件中将包含一条下面样子的条目：
+
+#: path/to/python/module.py:23
+msgid "Welcome to my site."
+msgstr ""
+这三行内容各自代表下面的意思：
+
+第一行通过注释表达该条要翻译的字符串在视图或模版中的位置；
+msgid：要翻译的字符串。不要修改它。
+msgstr：翻译后的文本。一开始它是空的，需要翻译人员逐条填写。
+这是一个文本文件，需要专业的翻译人员将所有的msgstr空白‘填写’齐全。如果你的项目比较大，这可能是个磨人的事。
+
+LOCALE_PATHS = (
+    PROJECT_ROOT + '/website/locale', )
+
+
+
+五、编译语言文件
+当完成语言文件的创建和翻译工作后，或者对语言文件修改后，需要将其编译成对应的*.mo文件，Django在运行时将使用*.mo文件对网站进行国际化翻译。
+
+进入项目根目录，运行下面的命令，进行语言文件编译：
+
+django-admin compilemessages
+Django将自动搜索所有的.po文件，将它们都翻译成.mo文件。
+
+至此，国际化和本地化就完成了。你的网站页面将根据访问者使用语言的不同，展示为不同的语言版本，比如中文、英文、法文、德文之类
+
+
+npm install  报错sha512
+整理一下，大概有这几种解决方法：
+1. 删除 package-lock.json
+
+2. npm cache clean --force
+
+3. 删除 Users%username%\AppData\Roaming 目录下的 npm 和 npm-cache 文件夹
+
+
+vue 构建的项目，build的dist找不到背景图片解决方案：
+修改build/utils.js 文件中
+if (options.extract) {
+      return ExtractTextPlugin.extract({
+        use: loaders,
+        fallback: 'vue-style-loader',
+        publicPath: '../../'
+      })
+    } else {
+      return ['vue-style-loader'].concat(loaders)
+    }
+添加一行：publicPath: '../../'
 
