@@ -12,12 +12,12 @@ export default new Router({
     {
       path: '/',
       name: 'HelloWorld',
-      component: HelloWorld
+      component: HelloWorld,
     },
     {
       path: '/403',
       name: 'Page_403',
-      component: Page_403
+      component: Page_403,      
     },
     {
       path: '/404',
@@ -27,7 +27,11 @@ export default new Router({
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      component: Login,
+      meta: {
+        // 添加该字段，表示进入这个路由是不需要登录的
+         notRequireAuth: true,  
+      },  
       // component:  resolve => require(['../components/common/Login.vue'], resolve)
     },
     {

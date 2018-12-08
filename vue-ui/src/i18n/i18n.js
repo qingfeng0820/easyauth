@@ -2,11 +2,13 @@ import Vue from 'vue'
 import VueI18n from 'vue-i18n'
 import messages from './langs'
 import locale from 'element-ui/lib/locale'
-import utils from '../components/common/utils'
-import apiConfig from '../components/common/apiConfig'
+// import utils from '../components/common/utils'
+// import apiConfig from '../components/common/apiConfig'
+import store from '../store'
 
 Vue.use(VueI18n)
-var lang_code = utils.cookie.get(apiConfig.lang_param) || 'zh_hans'
+// var lang_code = utils.cookie.get(apiConfig.lang_param) || apiConfig.default_lang_code
+var lang_code = store.state.langCode
 const i18n = new VueI18n({
   locale: lang_code.replace("-", "_"),
   messages

@@ -1,20 +1,20 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">后台管理系统</div>
+            <div class="ms-title">{{ $t('page.backendManagementSystemTitle') }}</div>
             <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
-                    <el-input v-model="ruleForm.username" placeholder="username" autocomplete="on">
+                    <el-input v-model="ruleForm.username" :placeholder="$t('placeholder.username')" autocomplete="on">
                         <el-button slot="prepend" icon="el-icon-lx-people" tabindex="-1"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" placeholder="password" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
+                    <el-input type="password" :placeholder="$t('placeholder.password')" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
                         <el-button slot="prepend" icon="el-icon-lx-lock" tabindex="-1"></el-button>
                     </el-input>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+                    <el-button type="primary" @click="submitForm('ruleForm')">{{ $t('label.loginButton') }}</el-button>
                 </div>
                 <p class="login-tips"></p>
             </el-form>
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-    import {authentication} from './api';
+    import api from './api';
 
     export default {
         data: function(){
@@ -34,10 +34,10 @@
                 },
                 rules: {
                     username: [
-                        { required: true, message: '请输入用户名', trigger: 'blur' }
+                        { required: true, message: this.$t('message.inputUsername'), trigger: 'blur' }
                     ],
                     password: [
-                        { required: true, message: '请输入密码', trigger: 'blur' }
+                        { required: true, message: this.$t('message.inputPassword'), trigger: 'blur' }
                     ]
                 }
             }
@@ -46,13 +46,15 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        authentication.login(this.ruleForm.username, this.ruleForm.password)
+                        api.authentication.login(this.ruleForm.username, this.ruleForm.password)
                         .then(res => {
-                            localStorage.setItem('ms_username',this.ruleForm.username);
-                            this.$router.push('/');
+                            var redirectUrl = '/'
+                            if (this.$route.query && this.$route.query.redirect) {
+                                redirectUrl = this.$route.query.redirect
+                            }
+                            this.$router.push(redirectUrl);
                         })
                         .catch(err => {
-                            
                         })
                     } else {
                         return false;
@@ -76,7 +78,7 @@
         line-height: 50px;
         text-align: center;
         font-size:20px;
-        color: #fff;
+        color: #000;
         border-bottom: 1px solid #ddd;
     }
     .ms-login{

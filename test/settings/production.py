@@ -111,6 +111,8 @@ STATIC_URL = '/static/'
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
+    # Add vue-ui/dist to django webapp
+    normpath(join(WK_DIR, 'vue-ui/dist')),
 )
 #
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders

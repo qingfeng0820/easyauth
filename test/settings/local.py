@@ -1,6 +1,6 @@
 """Development settings."""
 
-from os.path import join
+from os.path import join, normpath
 from .production import *
 
 ########## DEBUG CONFIGURATION
@@ -9,7 +9,8 @@ DEBUG = True
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
 TEMPLATE_DEBUG = DEBUG
-CORS_ORIGIN_ALLOW_ALL = DEBUG
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 ########## END DEBUG CONFIGURATION
 
 

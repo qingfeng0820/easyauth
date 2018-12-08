@@ -3,7 +3,7 @@ var baseURL = ''
 if (process.env.NODE_ENV == 'development') {
     baseURL = 'http://localhost';
 } else if (process.env.NODE_ENV == 'production') {
-    axios.defaults.baseURL = 'http://api.123dailu.com/';
+    baseURL = 'http://localhost';
 }
 
 export default {
@@ -13,4 +13,5 @@ export default {
     base_url: baseURL,
     request_timeout: 10000,
     lang_param: "lang",
+    default_lang_code: "zh-hans",
 }

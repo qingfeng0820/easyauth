@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from easyauth.models import AbstractUser
 
@@ -26,7 +27,7 @@ class DummyModel(models.Model):
 
     class Meta:
         permissions = (
-            ("maintain_dummy_model", "Can maintain dummy model"),
+            ("maintain_dummy_model", _("Can maintain dummy model")),
         )
         ordering = ('id', )
 

@@ -3,13 +3,14 @@
  */
 import axios from 'axios';
 import QS from 'qs';
-// import { Toast } from 'vant';
-// import store from '../store/index'
 import router from '../../router'
 import { Loading, Message } from 'element-ui'
 import apiConfig from './apiConfig'
 import utils from './utils'
 import i18n from '../../i18n/i18n'
+import store from '../../store'
+import api from './api'
+import { join } from 'path'
 
 axios.defaults.baseURL = apiConfig.base_url;
 
@@ -19,7 +20,18 @@ axios.defaults.timeout = apiConfig.request_timeout;
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 
+axios.defaults.withCredentials = true; //意思是携带cookie信息,保持session的一致性
+
 var loadinginstace;
+
+var __isSameUrl = function (checkUrl, expectUrl) {
+    if (checkUrl != expectUrl
+        && !checkUrl.startsWith(expectUrl + "?")
+        && !checkUrl.startsWith(expectUrl + "#") ) {
+            return false
+        }
+        return true
+}
 
 // 请求拦截器
 axios.interceptors.request.use(
@@ -28,16 +40,9 @@ axios.interceptors.request.use(
         // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
         // const token = store.state.token;
         // token && (config.headers.Authorization = token);
-        // var current_url = window.location.href
-        // var lang_code = utils.url.getParameterInUrl(current_url, apiConfig.lang_param)
-        // if (lang_code) {
-        //     utils.cookie.set(apiConfig.lang_param, lang_code)
-        // } else {
-        //     lang_code = utils.cookie.get(apiConfig.lang_param)
-        // }
-        var lang_code = utils.cookie.get(apiConfig.lang_param)
 
-        if (lang_code) {
+        var lang_code = store.state.langCode
+        if (lang_code && lang_code != apiConfig.default_lang_code) {
             // for backend i18n
             config.url = utils.url.appendParameterInUrl(config.url, apiConfig.lang_param, lang_code)
         }
@@ -48,7 +53,7 @@ axios.interceptors.request.use(
     error => {
         loadinginstace.close()
         Message.error({
-            message: '加载超时'
+            message: i18n.t("message.loadFailed")
         })
         return Promise.error(error);
     })
@@ -60,6 +65,9 @@ axios.interceptors.response.use(
         if (response.status === 401 || response.status === 403 || response.status === 404) {
             return Promise.reject(response);
         } else {
+            if (__isSameUrl(response.config.url, apiConfig.base_url + api.authentication.getLoginUserUrl)) {
+                store.commit("saveLoginUser", response.data)
+            }
             return Promise.resolve(response);
         }
     },
@@ -72,13 +80,10 @@ axios.interceptors.response.use(
                 // 未登录则跳转登录页面，并携带当前页面的路径
                 // 在登录成功后返回当前页面，这一步需要在登录页操作。
                 case 401:
-                    // // 清除token
-                    // localStorage.removeItem('token');
-                    // store.commit('loginSuccess', null);
+                    // 清除token
+                    store.commit("clearLoginUser")
                     // 跳转
-                    if (router.currentRoute.fullPath != '/login'
-                    && !router.currentRoute.fullPath.startsWith("/login?")
-                    && !router.currentRoute.fullPath.startsWith("/login#") ) {
+                    if ( !__isSameUrl(router.currentRoute.fullPath, '/login') ) {
                         router.replace({
                             path: '/login',
                             query: { redirect: router.currentRoute.fullPath }
@@ -106,16 +111,16 @@ axios.interceptors.response.use(
                     break;
                 // 其他错误
                 default:
-                    if (router.currentRoute.fullPath != '/login') {
-                        Message.error({
-                            message: ['加载失败": ', error.response.data.detail].join("")
-                        })
-                    }
+                    // if (!__isSameUrl(router.currentRoute.fullPath, '/login')) {
+                    Message.error({
+                        message: [i18n.t("message.serverInternalError"), ': ', error.response.data.detail].join("")
+                    })
+                    // }
             }
             return Promise.reject(error.response);
         } else {
             Message.error({
-                message: '加载失败'
+                message: i18n.t("message.networkIssue")
             })
             return Promise.reject(error.message);
         }
@@ -253,6 +258,8 @@ const patchJson = (url, jsonReq) =>{
     });
 }
 
-export default {
+var restclient = {
     get, post, put, patch, del, postJson, putJson, patchJson
 }
+
+export { axios, restclient }
