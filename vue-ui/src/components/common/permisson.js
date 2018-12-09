@@ -39,15 +39,31 @@ const hasPermission = function(user, requiredPermissions) {
     if (!requiredPermissions) {
         return true
     }
-    var userPermissions = user.user_permissions;
-    if (!userPermissions) {
-        return false
-    }
     var checkPermissions
     if  (typeof (requiredPermissions) =='string') {
         checkPermissions = requiredPermissions.split(",")
     } else {
         checkPermissions = requiredPermissions
+    }
+    var passed = __permissionCheck(user.user_permissions, checkPermissions)
+    if (!passed) {
+        var userRoles = user.groups;
+        if (!userRoles) {
+            return false
+        }
+        userRoles.forEach(function(userRole, j) {
+            passed = __permissionCheck(userRole.permissions, checkPermissions)
+            if (passed) {
+                return
+            }
+        })
+    }
+    return passed
+}
+
+const __permissionCheck = function(userPermissions, checkPermissions) {
+    if (!userPermissions) {
+        return false
     }
     var passed = false
     checkPermissions.forEach(function(permission, i) {

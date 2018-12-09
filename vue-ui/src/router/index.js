@@ -17,7 +17,7 @@ export default new Router({
       component: HelloWorld,
       meta: {
         title: i18n.t("page.homeTitle"),
-        requiredRoles: 'test,admin'
+        requiredPermissions: 'change_permission'
       },
     },
     {

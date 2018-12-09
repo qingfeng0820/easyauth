@@ -208,7 +208,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
             if model.USER_DEPART_FIELD is None \
             else ('is_staff', 'is_superuser', 'date_joined', 'last_login',  'last_logout', 'groups',
                   'user_permissions', model.USERNAME_FIELD,  model.USER_DEPART_FIELD)
-        depth = 1
+        depth = 2
 
     def create(self, validated_data):
         pass

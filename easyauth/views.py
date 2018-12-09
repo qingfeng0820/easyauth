@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
     maintain_permission_classes = (IsSuperUser, )
-    query_permission_classes = (UserAdminPermission, )
+    query_permission_classes = (IsAuthenticated, )
 
     def dispatch(self, request, *args, **kwargs):
         self.is_query_permission = False
@@ -52,7 +52,7 @@ class GroupViewSet(QueryLowPermAdminModelViewSet):
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Permission.objects.all()
     serializer_class = PermissionSerializer
-    permission_classes = (UserAdminPermission,)
+    permission_classes = (IsAuthenticated,)
 
 
 class UserViewSet(viewsets.ModelViewSet):
