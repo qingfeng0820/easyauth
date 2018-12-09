@@ -14,6 +14,7 @@ import utils from './components/common/utils'
 import apiConfig from './components/common/apiConfig'
 import api from './components/common/api'
 import store from './store'
+import permission from './components/common/permisson'
 
 
 Vue.use(ElementUI, { size: 'small' });
@@ -21,6 +22,9 @@ Vue.prototype.$axios = axios;
 Vue.prototype.$RestClient = restclient;
 Vue.prototype.$API = api;
 Vue.config.productionTip = false
+
+// update the user cached in client
+api.authentication.checkme()
 
 // authentication and authorization
 router.beforeEach((to, from, next) => {
@@ -32,11 +36,35 @@ router.beforeEach((to, from, next) => {
     i18n.locale = lang_code.replace("-", "_")
   }
 
+  // 设置title
+  if (to.meta.title) {
+    document.title = [i18n.t("page.title"), to.meta.title].join(" - ")
+  } else {
+    document.title = i18n.t("page.title")
+  }
+
   if (to.meta && to.meta.notRequireAuth) {  // 判断该路由是否不需要登录权限
     next()
   } else {
-    if (store.state.loginUser) {  // 通过vuex state获取当前的token是否存在
-      next();
+    if (store.state.loginUser) {  // 是否已经登陆
+      // 权限判断
+      var hasPermission = true
+      if (permission.isSuperUser(store.state.loginUser)) {
+        hasPermission = true
+      } else if (to.meta.permissionCheck &&  typeof(eval(to.meta.permissionCheck)) == "function") {
+        hasPermission = to.meta.permissionCheck(store.state.loginUser)
+      } else if (to.meta.requiredRoles) {
+        hasPermission = permission.hasRole(store.state.loginUser, to.meta.requiredRoles)
+      } else if (to.meta.requiredPermissions) {
+        hasPermission = permission.hasPermission(store.state.loginUser, to.meta.requiredPermissions)
+      }
+      if (hasPermission) {
+        next()
+      } else {
+        next({
+          path: '/403',
+        })
+      }
     } else {
       next({
           path: '/login',

@@ -1,11 +1,10 @@
-
 var baseURL = ''
 baseURL = 'http://localhost';
 if (process.env.NODE_ENV == 'development') {
     baseURL = 'http://localhost';
 }
 
-export default {
+const config = {
     authentication_api_prefix: "/api-auth",
     login_field_name: "phone",
     user_admin_pai_prefix: "/api",
@@ -14,3 +13,5 @@ export default {
     lang_param: "lang",
     default_lang_code: "zh-hans",
 }
+
+export default config

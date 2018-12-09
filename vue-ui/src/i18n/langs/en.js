@@ -16,6 +16,13 @@ const en = {
         'noPrivilegeDesc': 'Opps~ you are not authorised.',
         'notFoundDesc': 'Opps~ the page not existed.',
         'backendManagementSystemTitle': 'Management System',
+        'title': "Manage System",
+        'homeTitle': 'Home',
+        'loginTitle': 'Login',
+        'permissionDenyTitle': 'Permission Deny',
+        'notFoundTitle': 'Not Found',
+        'userAdminTitle': 'Users management',
+        'roleAdminTitle': 'Roles management'
     },
     label: {
         'goHome': 'Go Home',

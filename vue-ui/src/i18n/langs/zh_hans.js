@@ -10,12 +10,18 @@ const zh_hans = {
         'loadFailed': '加载失败',
         'doLogin': '还未登陆，请先登陆',
         'reLogin': '登陆已超时，请重新登陆',
-        
     },
     page: {
         'noPrivilegeDesc': '啊哦~ 你没有权限访问该页面哦',
         'notFoundDesc': '啊哦~ 你所访问的页面不存在',
         'backendManagementSystemTitle': '后台管理系统',
+        'title': "后台管理系统",
+        'homeTitle': '首页',
+        'loginTitle': '登陆',
+        'permissionDenyTitle': '没有权限',
+        'notFoundTitle': '页面不存在',
+        'userAdminTitle': '用户管理',
+        'roleAdminTitle': '角色管理',
     },
     label: {
         'goHome': '返回首页',

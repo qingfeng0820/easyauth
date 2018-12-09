@@ -6,8 +6,16 @@ import apiConfig from '../components/common/apiConfig'
 
 vue.use(vuex)
 
+const __getStoredObject = function(key) {
+    var storedObj = localStorage.getItem("loginUser")
+    if (storedObj) {
+        return JSON.parse(storedObj)
+    }
+    return null
+}
+
 const state = {
-    loginUser: localStorage.getItem("loginUser"),
+    loginUser: __getStoredObject("loginUser"),
     // langCode: utils.cookie.get(apiConfig.lang_param) || apiConfig.default_lang_code,
     langCode: localStorage.getItem(apiConfig.lang_param) || apiConfig.default_lang_code,
 }
@@ -19,7 +27,7 @@ const mutations = {
         state.langCode=langCode;
     },
     saveLoginUser(state, loginUser) {
-        localStorage.setItem("loginUser", loginUser)
+        localStorage.setItem("loginUser", JSON.stringify(loginUser))
         state.loginUser = loginUser
     },
     clearLoginUser(state) {

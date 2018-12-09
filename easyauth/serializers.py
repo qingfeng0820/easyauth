@@ -33,8 +33,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'date_joined': {'read_only': True},
                         'last_login': {'read_only': True}, 'last_logout': {'read_only': True}}
 
-        depth = 1
-
     def create(self, validated_data):
         raw_password = conf.get_conf(conf.USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN)
         validated_data["password"] = make_password(raw_password)

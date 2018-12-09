@@ -26,7 +26,7 @@ if (process.env.NODE_ENV == 'development') {
 
 var loadinginstace;
 
-var __isSameUrl = function (checkUrl, expectUrl) {
+const __isSameUrl = function (checkUrl, expectUrl) {
     if (checkUrl != expectUrl
         && !checkUrl.startsWith(expectUrl + "?")
         && !checkUrl.startsWith(expectUrl + "#") ) {
@@ -88,6 +88,12 @@ axios.interceptors.response.use(
                         loginedBefore = true
                     }
                     store.commit("clearLoginUser")
+
+                    if (__isSameUrl(error.response.config.url, apiConfig.base_url + api.authentication.getLoginUserUrl)) {
+                        if (utils.url.getParameterInUrl(error.response.config.url, "checkme")) {
+                            return;
+                        }
+                    }
                     var loginFailedMessage
                     // 跳转
                     if ( !__isSameUrl(router.currentRoute.fullPath, '/login') ) {

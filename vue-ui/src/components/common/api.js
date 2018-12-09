@@ -2,7 +2,7 @@ import { restclient } from "./restclient"
 import apiConfig from './apiConfig'
 import { join } from "path";
 
-var authentication = {
+const authentication = {
     loginUrl: join(apiConfig.authentication_api_prefix, "login"),
     getLoginUserUrl: join(apiConfig.authentication_api_prefix, "me"),
     logoutUrl: join(apiConfig.authentication_api_prefix, "loginout"),
@@ -29,6 +29,18 @@ var authentication = {
     me: function() {
         return new Promise((resolve, reject) => {         
             var url = this.getLoginUserUrl
+            restclient.get(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    checkme: function() {
+        return new Promise((resolve, reject) => {         
+            var url = [this.getLoginUserUrl, "checkme=true"].join("?")
             restclient.get(url)
             .then(res => {            
                 resolve(res);        

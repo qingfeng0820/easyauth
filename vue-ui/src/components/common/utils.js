@@ -1,4 +1,4 @@
-var url = {
+const url = {
     getUrlWithOutParams: function (url) {
         return url.split("?")[0];
     },
@@ -139,7 +139,7 @@ var url = {
     },
 
 }
-var cookie = {
+const cookie = {
     /**
      * @param: _key，键名；
      * @param: _val，键值；
