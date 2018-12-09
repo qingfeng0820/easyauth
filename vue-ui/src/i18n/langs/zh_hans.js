@@ -8,6 +8,8 @@ const zh_hans = {
         'serverInternalError': '服务器内部错误',
         'networkIssue': '网络请求失败',
         'loadFailed': '加载失败',
+        'doLogin': '还未登陆，请先登陆',
+        'reLogin': '登陆已超时，请重新登陆',
         
     },
     page: {

@@ -23,8 +23,7 @@
 </template>
 
 <script>
-    import api from './api';
-
+    // import api from './api';
     export default {
         data: function(){
             return {
@@ -46,7 +45,7 @@
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        api.authentication.login(this.ruleForm.username, this.ruleForm.password)
+                        this.$API.authentication.login(this.ruleForm.username, this.ruleForm.password)
                         .then(res => {
                             var redirectUrl = '/'
                             if (this.$route.query && this.$route.query.redirect) {

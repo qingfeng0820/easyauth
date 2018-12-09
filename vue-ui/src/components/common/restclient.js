@@ -20,7 +20,9 @@ axios.defaults.timeout = apiConfig.request_timeout;
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 
-axios.defaults.withCredentials = true; //意思是携带cookie信息,保持session的一致性
+if (process.env.NODE_ENV == 'development') {
+    axios.defaults.withCredentials = true; //意思是携带cookie信息,保持session的一致性
+}
 
 var loadinginstace;
 
@@ -81,21 +83,32 @@ axios.interceptors.response.use(
                 // 在登录成功后返回当前页面，这一步需要在登录页操作。
                 case 401:
                     // 清除token
+                    var loginedBefore = false
+                    if (store.state.loginUser) {
+                        loginedBefore = true
+                    }
                     store.commit("clearLoginUser")
+                    var loginFailedMessage
                     // 跳转
                     if ( !__isSameUrl(router.currentRoute.fullPath, '/login') ) {
                         router.replace({
                             path: '/login',
                             query: { redirect: router.currentRoute.fullPath }
                         });
+                        if (loginedBefore) {
+                            loginFailedMessage = i18n.t("message.reLogin")
+                        } else {
+                            loginFailedMessage = i18n.t("message.doLogin")
+                        }
+                    } else {
+                        loginFailedMessage = [i18n.t("message.loginFailed"), ': ', error.response.data.detail].join("")
                     }
                     Message.error({
-                        message: [i18n.t("message.loginFailed"), ': ', error.response.data.detail].join("")
+                        message: loginFailedMessage
                     })
                     break;
                 // 403 没有权限
                 case 403:
-                    // 跳转登录页面，并将要浏览的页面fullPath传过去，登录成功后跳转需要访问的页面
                     router.replace({
                         path: '/403'
                     });

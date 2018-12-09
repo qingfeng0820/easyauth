@@ -1,8 +1,7 @@
 
 var baseURL = ''
+baseURL = 'http://localhost';
 if (process.env.NODE_ENV == 'development') {
-    baseURL = 'http://localhost';
-} else if (process.env.NODE_ENV == 'production') {
     baseURL = 'http://localhost';
 }
 

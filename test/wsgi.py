@@ -11,6 +11,10 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 import apps
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "%s.settings.production" % apps.APP_NAME)
 

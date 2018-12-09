@@ -9,6 +9,8 @@ const en = {
         'serverInternalError': 'Server internal error',
         'networkIssue': "Network issue",
         'loadFailed': 'Load failed',
+        'doLogin': 'You are not logined, please login',
+        'reLogin': 'Your login session expired, please re-login',
     },
     page: {
         'noPrivilegeDesc': 'Opps~ you are not authorised.',

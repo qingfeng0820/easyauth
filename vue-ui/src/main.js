@@ -4,7 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import ElementUI from 'element-ui';
-import { restclient, axios } from './components/common/restclient'
+import { axios, restclient } from './components/common/restclient'
 
 import 'element-ui/lib/theme-chalk/index.css';    // 默认主题
 // import '../static/css/theme-green/el.css';       // 浅绿色主题
@@ -12,12 +12,14 @@ import '../static/css/set-el-icon.css';
 import i18n from './i18n/i18n'
 import utils from './components/common/utils'
 import apiConfig from './components/common/apiConfig'
+import api from './components/common/api'
 import store from './store'
 
 
 Vue.use(ElementUI, { size: 'small' });
-Vue.prototype.$RestClient = restclient;
 Vue.prototype.$axios = axios;
+Vue.prototype.$RestClient = restclient;
+Vue.prototype.$API = api;
 Vue.config.productionTip = false
 
 // authentication and authorization

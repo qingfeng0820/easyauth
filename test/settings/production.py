@@ -1,9 +1,9 @@
 """Production settings."""
 
 
-from os.path import abspath, basename, dirname, join, normpath
+import os
+from os.path import abspath, basename, dirname, join, normpath, isdir
 from sys import path
-
 
 
 ########## PATH CONFIGURATION
@@ -177,8 +177,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'easyauth.locale.SwitchLanguageMiddleware',
+    'easyauth.middleware.SwitchLanguageMiddleware',
+    'easyauth.middleware.RequestLoggingMiddleware',
 )
 ########## END MIDDLEWARE CONFIGURATION
 
@@ -306,6 +306,7 @@ REST_FRAMEWORK = {
     # 'DEFAULT_FILTER_BACKENDS': (
     #     'django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter'
     # ),
+    'EXCEPTION_HANDLER': 'easyauth.views.exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'easyauth.pagination.CustomizedPageNumberPagination',
     'PAGE_SIZE': 500
 }
@@ -320,6 +321,85 @@ ALLOWED_HOSTS = ['*', ]
 
 
 LOCALE_PATHS = ('/locale', )
+
+# Create log folder
+LOG_ROOT_PATH = join(WK_DIR, 'logs')
+if not isdir(LOG_ROOT_PATH):
+    os.mkdir(LOG_ROOT_PATH)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        }
+    },
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s %(levelname)s [%(threadName)s] [%(name)s] %(pathname)s %(funcName)s %(lineno)d: %(message)s'
+        },
+        'simple': {
+            'format': '%(asctime)s %(levelname)s [%(threadName)s] [%(name)s] %(message)s'
+        },
+    },
+    'handlers': {
+        'null': {
+            'class': 'logging.NullHandler',
+        },
+        'server_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_ROOT_PATH, "server.log"),
+            'maxBytes': 1024 * 1024 * 5,  # 5 MB
+            'backupCount': 5,
+            'encoding': 'UTF-8',
+            'formatter': 'simple'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'level': os.getenv('DJANGO_DB_BACKEND_LOG_LEVEL', 'INFO'),
+            'propagate': True,
+        },
+        # 'django.server': {
+        #     'level': os.getenv('DJANGO_SERVER_LOG_LEVEL', 'INFO'),
+        #     'propagate': True,
+        # },
+        'easyauth': {
+            'level': os.getenv('EASYAUTH_LOG_LEVEL', 'INFO'),
+            'propagate': True
+        },
+        '': {
+            'handlers': ['server_log', 'console'],
+            'level': 'INFO',
+            'propagate': True
+        },
+    }
+}
+
+################### Session Setting #####################
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 7 days
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
 
 EASYAUTH_CONF = {
     'USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN': "12345678",

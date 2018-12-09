@@ -87,6 +87,7 @@
 export default {
   name: 'HelloWorld',
   data () {
+    this.$API.authentication.me()
     return {
       msg: 'Welcome to Your Vue.js App'
     }

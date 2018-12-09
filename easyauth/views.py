@@ -1,21 +1,30 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import json
 import re
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth import (login as django_login, logout as django_logout)
 from django.contrib.auth.models import Group, Permission
 from rest_framework import viewsets, status
+from rest_framework.exceptions import APIException
 from rest_framework.generics import CreateAPIView, GenericAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.views import exception_handler as rest_framework_exception_handler
 
 from easyauth import conf
 from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticated
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
     GroupSerializer, PermissionSerializer
+
+
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
@@ -76,6 +85,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user_model = get_user_model()
             depart_id = self.depart.id
             request.data[user_model.USER_DEPART_FIELD] = depart_id
+        logger.info("Update user -> %s" % json.dumps(request.data))
         return super(viewsets.ModelViewSet, self).update(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -113,15 +123,20 @@ class UserMeView(UpdateAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, format=None):
-        return Response(self.serializer_class(request.user).data)
+        data = self.serializer_class(request.user).data
+        return Response(data)
 
     def put(self, request, *args, **kwargs):
+        logger.info("Self update -> %s" % json.dumps(request.data))
         self.kwargs['pk'] = request.user.id
-        return self.update(request, *args, **kwargs)
+        res = self.update(request, *args, **kwargs)
+        return res
 
     def patch(self, request, *args, **kwargs):
+        logger.info("Self partially update -> %s" % request.data)
         self.kwargs['pk'] = request.user.id
-        return self.partial_update(request, *args, **kwargs)
+        res = self.partial_update(request, *args, **kwargs)
+        return res
 
 
 class RegisterView(CreateAPIView):
@@ -154,10 +169,13 @@ class LoginView(GenericAPIView):
         return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        logger.info("Try to login -> %s: %s" % (get_user_model().USERNAME_FIELD,
+                                               request.data.get(get_user_model().USERNAME_FIELD)))
         serializer = self.get_serializer(data=self.request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
 
-        return self.login(request, serializer.authencated_user)
+        res = self.login(request, serializer.authencated_user)
+        return res
 
 
 class LogoutView(GenericAPIView):
@@ -173,6 +191,7 @@ class LogoutView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
+        logger.info("Logout successfully")
         return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -185,5 +204,13 @@ class LogoutView(GenericAPIView):
             response = self.http_method_not_allowed(request, *args, **kwargs)
         return self.finalize_response(request, response, *args, **kwargs)
 
+
+def exception_handler(exc, context):
+    if isinstance(exc, APIException):
+        msg = json.dumps(exc.detail, encoding="UTF-8", ensure_ascii=False)
+        logger.error("Get Error %s: %s", exc.__class__, msg)
+    else:
+        logger.error("Get Error %s: %s", exc.__class__, exc)
+    return rest_framework_exception_handler(exc, context)
 
 
