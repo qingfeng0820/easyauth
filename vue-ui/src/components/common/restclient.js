@@ -9,12 +9,12 @@ import easyauth from './easyauth'
 import utils from './utils'
 import i18n from '../../i18n/i18n'
 import store from '../../store'
-import config from '../config'
+import projConfig from '../config'
 
-axios.defaults.baseURL = config.backendBaseURL;
+axios.defaults.baseURL = projConfig.backendBaseURL;
 
 // 请求超时时间
-axios.defaults.timeout = config.requestTimeout;
+axios.defaults.timeout = projConfig.requestTimeout;
 
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
@@ -43,7 +43,7 @@ axios.interceptors.request.use(
         // token && (config.headers.Authorization = token);
 
         var lang_code = store.state.langCode
-        if (lang_code && lang_code != config.defaultLangCode) {
+        if (lang_code && lang_code.toLowerCase() != projConfig.defaultLangCode.toLowerCase()) {
             // for backend i18n
             config.url = utils.url.appendParameterInUrl(config.url, easyauth.config.lang_param, lang_code)
         }
@@ -52,7 +52,9 @@ axios.interceptors.request.use(
         return config;
     },
     error => {
-        loadinginstace.close()
+        if (loadinginstace) {
+            loadinginstace.close()
+        }
         Message.error({
             message: i18n.t("message.loadFailed")
         })
@@ -62,7 +64,9 @@ axios.interceptors.request.use(
 // 响应拦截器
 axios.interceptors.response.use(
     response => {
-        loadinginstace.close()
+        if (loadinginstace) {
+            loadinginstace.close()
+        }
         if (response.status === 401 || response.status === 403 || response.status === 404) {
             return Promise.reject(response);
         } else {
@@ -74,7 +78,9 @@ axios.interceptors.response.use(
     },
     // 服务器状态码不是200的情况
     error => {
-        loadinginstace.close()
+        if (loadinginstace) {
+            loadinginstace.close()
+        }
         if (error.response && error.response.status) {
             switch (error.response.status) {
                 // 401: 未登录
@@ -88,7 +94,6 @@ axios.interceptors.response.use(
                             loginedBefore = true
                         }
                         store.commit("clearLoginUser")
-                        console.log(router.currentRoute)
                         if (__isSameUrl(error.response.config.url, easyauth.authentication.getLoginUserUrl)) {
                             if (router.currentRoute.meta && router.currentRoute.meta.notRequireAuth && utils.url.getParameterInUrl(error.response.config.url, "checkme")) {
                                 return;

@@ -21,8 +21,6 @@ class SwitchLanguageMiddleware(object):
             lang = request.META.get("HTTP_%s" % conf.get_conf(conf.LANG_PARAM).upper(), '')
 
         if not lang:
-            print(request.COOKIES.get(conf.get_conf(conf.LANG_PARAM), ''))
-            print(json.dumps(request.COOKIES))
             lang = request.COOKIES.get(conf.get_conf(conf.LANG_PARAM), '')
 
         if lang:

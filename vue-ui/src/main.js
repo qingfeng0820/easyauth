@@ -15,6 +15,7 @@ import store from './store'
 import permission from './components/common/permisson'
 import projConfig from './components/config'
 import bus from './components/common/bus'
+import supportLangs from './i18n/langs'
 
 
 Vue.use(ElementUI, { size: 'small' });
@@ -26,11 +27,27 @@ Vue.prototype.$projConfig = projConfig
 Vue.prototype.$bus = bus
 Vue.config.productionTip = false
 
+const __is_supported_lang = function(lang) {
+   var checkLang = lang.toLowerCase()
+   for (var key in supportLangs) {
+     if(key == checkLang) {
+       return true
+     }
+   }
+
+   return false
+}
+
 // authentication and authorization
 router.beforeEach((to, from, next) => {
-  var lang_code = utils.url.getParameterInUrl(to.fullPath, easyauth.config.lang_param)
+  var lang_code = utils.url.getParameterInUrl(window.location.href, easyauth.config.lang_param)
+  // change lang code by the lang parameter
   if (lang_code) {
-    // change lang code by the lang parameter
+    lang_code = lang_code.split('#')[0]
+    if (!__is_supported_lang(lang_code)) {
+      lang_code = projConfig.defaultLangCode
+    }
+    lang_code = lang_code.toLowerCase()
     store.dispatch("changeLangCode", lang_code)
     // for ui i18n
     i18n.locale = lang_code.replace("-", "_")
