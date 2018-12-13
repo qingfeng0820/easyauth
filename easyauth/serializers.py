@@ -29,9 +29,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         exclude = ('password', )
-        read_only_fields = ('is_superuser', 'date_joined', 'last_login', 'last_logout')
+        read_only_fields = ('is_superuser', 'date_joined', 'last_login', 'last_logout',
+                            'current_login_ip', 'last_login_ip')
         extra_kwargs = {'date_joined': {'read_only': True},
-                        'last_login': {'read_only': True}, 'last_logout': {'read_only': True}}
+                        'last_login': {'read_only': True}, 'last_logout': {'read_only': True},
+                        'current_login_ip': {'read_only': True}, 'last_login_ip': {'read_only': True}}
 
     def create(self, validated_data):
         raw_password = conf.get_conf(conf.USER_DEFAULT_PWD_MAINTAIN_BY_ADMIN)
@@ -103,7 +105,7 @@ class UserPasswordResetSerializer(serializers.ModelSerializer):
                 new_password = self.initial_data.get('new_password')
                 if password and new_password:
                     if password == new_password:
-                        err = ValidationError({'detail': _('The new password is same as before.')})
+                        err = ValidationError({'detail': _('The input password and new password are the same.')})
                     elif not user.password_reset_password_check(password):
                         err = exceptions.AuthenticationFailed({'detail': _('Credentials not correct.')})
                     else:
@@ -150,7 +152,15 @@ class UserLoginSerializer(serializers.ModelSerializer):
                 if not user.is_active:
                     err = exceptions.AuthenticationFailed({'detail': _('User account disabled.')})
                 else:
+                    if 'HTTP_X_FORWARDED_FOR' in self.context["request"]._request.META:
+                        from_host = "%s -> %s" % (self.context["request"]._request.META['HTTP_X_FORWARDED_FOR'],
+                                                  self.context["request"]._request.META['REMOTE_ADDR'])
+                    else:
+                        from_host = self.context["request"]._request.META['REMOTE_ADDR']
+                    setattr(user, "last_login_ip", user.current_login_ip)
+                    setattr(user, "current_login_ip", from_host)
                     self.authencated_user = user
+                    self.authencated_user.save()
             else:
                 raise exceptions.AuthenticationFailed({'detail': _('Credentials not correct.')})
         else:
@@ -190,6 +200,7 @@ class UserLogoutSerializer(serializers.ModelSerializer):
                 pass
             else:
                 setattr(user, "last_logout", timezone.now())
+                setattr(user, "last_login_ip", user.current_login_ip)
                 user.save()
 
     def create(self, validated_data):
@@ -203,10 +214,12 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         exclude = ('is_active', 'password')
-        read_only_fields = ('is_staff', 'is_superuser', 'date_joined', 'last_login', 'last_logout', 'groups',
+        read_only_fields = ('is_staff', 'is_superuser', 'date_joined', 'last_login', 'last_logout',
+                            'current_login_ip', 'last_login_ip', 'groups',
                             'user_permissions', model.USERNAME_FIELD,) \
             if model.USER_DEPART_FIELD is None \
-            else ('is_staff', 'is_superuser', 'date_joined', 'last_login',  'last_logout', 'groups',
+            else ('is_staff', 'is_superuser', 'date_joined', 'last_login',  'last_logout',
+                  'current_login_ip', 'last_login_ip', 'groups',
                   'user_permissions', model.USERNAME_FIELD,  model.USER_DEPART_FIELD)
         depth = 2
 

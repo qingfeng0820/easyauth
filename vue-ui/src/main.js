@@ -6,29 +6,29 @@ import router from './router'
 import ElementUI from 'element-ui';
 import { axios, restclient } from './components/common/restclient'
 
-import 'element-ui/lib/theme-chalk/index.css';    // 默认主题
-// import '../static/css/theme-green/el.css';       // 浅绿色主题
+import theme from './themes'
 import '../static/css/set-el-icon.css';
 import i18n from './i18n/i18n'
 import utils from './components/common/utils'
-import apiConfig from './components/common/apiConfig'
-import api from './components/common/api'
+import easyauth from './components/common/easyauth'
 import store from './store'
 import permission from './components/common/permisson'
+import projConfig from './components/config'
+import bus from './components/common/bus'
 
 
 Vue.use(ElementUI, { size: 'small' });
+
 Vue.prototype.$axios = axios;
 Vue.prototype.$RestClient = restclient;
-Vue.prototype.$API = api;
+Vue.prototype.$easyauth = easyauth
+Vue.prototype.$projConfig = projConfig
+Vue.prototype.$bus = bus
 Vue.config.productionTip = false
-
-// update the user cached in client
-api.authentication.checkme()
 
 // authentication and authorization
 router.beforeEach((to, from, next) => {
-  var lang_code = utils.url.getParameterInUrl(to.fullPath, apiConfig.lang_param)
+  var lang_code = utils.url.getParameterInUrl(to.fullPath, easyauth.config.lang_param)
   if (lang_code) {
     // change lang code by the lang parameter
     store.dispatch("changeLangCode", lang_code)
@@ -37,8 +37,8 @@ router.beforeEach((to, from, next) => {
   }
 
   // 设置title
-  if (to.meta.title) {
-    document.title = [i18n.t("page.title"), to.meta.title].join(" - ")
+  if (to.meta.getTitle) {
+    document.title = [i18n.t("page.title"), to.meta.getTitle()].join(" - ")
   } else {
     document.title = i18n.t("page.title")
   }
@@ -83,3 +83,8 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+
+// update the user cached in client
+easyauth.authentication.checkme().catch(err => {
+  // ignore
+})   

@@ -5,17 +5,16 @@ import axios from 'axios';
 import QS from 'qs';
 import router from '../../router'
 import { Loading, Message } from 'element-ui'
-import apiConfig from './apiConfig'
+import easyauth from './easyauth'
 import utils from './utils'
 import i18n from '../../i18n/i18n'
 import store from '../../store'
-import api from './api'
-import { join } from 'path'
+import config from '../config'
 
-axios.defaults.baseURL = apiConfig.base_url;
+axios.defaults.baseURL = config.backendBaseURL;
 
 // 请求超时时间
-axios.defaults.timeout = apiConfig.request_timeout;
+axios.defaults.timeout = config.requestTimeout;
 
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
@@ -26,13 +25,13 @@ if (process.env.NODE_ENV == 'development') {
 
 var loadinginstace;
 
-const __isSameUrl = function (checkUrl, expectUrl) {
+const __isSameUrl = function(checkUrl, expectUrl) {
     if (checkUrl != expectUrl
         && !checkUrl.startsWith(expectUrl + "?")
         && !checkUrl.startsWith(expectUrl + "#") ) {
             return false
-        }
-        return true
+    }
+    return true
 }
 
 // 请求拦截器
@@ -44,9 +43,9 @@ axios.interceptors.request.use(
         // token && (config.headers.Authorization = token);
 
         var lang_code = store.state.langCode
-        if (lang_code && lang_code != apiConfig.default_lang_code) {
+        if (lang_code && lang_code != config.defaultLangCode) {
             // for backend i18n
-            config.url = utils.url.appendParameterInUrl(config.url, apiConfig.lang_param, lang_code)
+            config.url = utils.url.appendParameterInUrl(config.url, easyauth.config.lang_param, lang_code)
         }
 
         loadinginstace = Loading.service({ fullscreen: true })
@@ -67,7 +66,7 @@ axios.interceptors.response.use(
         if (response.status === 401 || response.status === 403 || response.status === 404) {
             return Promise.reject(response);
         } else {
-            if (__isSameUrl(response.config.url, apiConfig.base_url + api.authentication.getLoginUserUrl)) {
+            if (__isSameUrl(response.config.url, easyauth.authentication.getLoginUserUrl)) {
                 store.commit("saveLoginUser", response.data)
             }
             return Promise.resolve(response);
@@ -82,59 +81,64 @@ axios.interceptors.response.use(
                 // 未登录则跳转登录页面，并携带当前页面的路径
                 // 在登录成功后返回当前页面，这一步需要在登录页操作。
                 case 401:
-                    // 清除token
-                    var loginedBefore = false
-                    if (store.state.loginUser) {
-                        loginedBefore = true
-                    }
-                    store.commit("clearLoginUser")
-
-                    if (__isSameUrl(error.response.config.url, apiConfig.base_url + api.authentication.getLoginUserUrl)) {
-                        if (utils.url.getParameterInUrl(error.response.config.url, "checkme")) {
-                            return;
+                    if (!__isSameUrl(error.response.config.url, easyauth.authentication.changePasswordUrl)) {
+                        // 清除token
+                        var loginedBefore = false
+                        if (store.state.loginUser) {
+                            loginedBefore = true
                         }
-                    }
-                    var loginFailedMessage
-                    // 跳转
-                    if ( !__isSameUrl(router.currentRoute.fullPath, '/login') ) {
-                        router.replace({
-                            path: '/login',
-                            query: { redirect: router.currentRoute.fullPath }
-                        });
-                        if (loginedBefore) {
-                            loginFailedMessage = i18n.t("message.reLogin")
+                        store.commit("clearLoginUser")
+                        console.log(router.currentRoute)
+                        if (__isSameUrl(error.response.config.url, easyauth.authentication.getLoginUserUrl)) {
+                            if (router.currentRoute.meta && router.currentRoute.meta.notRequireAuth && utils.url.getParameterInUrl(error.response.config.url, "checkme")) {
+                                return;
+                            }
+                        }
+                        var loginFailedMessage
+                        // 跳转
+                        if ( !__isSameUrl(router.currentRoute.fullPath, '/login') ) {
+                            router.replace({
+                                path: '/login',
+                                query: { redirect: router.currentRoute.fullPath }
+                            });
+                            if (loginedBefore) {
+                                loginFailedMessage = i18n.t("message.reLogin")
+                            } else {
+                                loginFailedMessage = i18n.t("message.doLogin")
+                            }
                         } else {
-                            loginFailedMessage = i18n.t("message.doLogin")
+                            loginFailedMessage = [i18n.t("message.loginFailed"), ': ', error.response.data.detail].join("")
                         }
-                    } else {
-                        loginFailedMessage = [i18n.t("message.loginFailed"), ': ', error.response.data.detail].join("")
+                        Message.error({
+                            message: loginFailedMessage
+                        })
                     }
-                    Message.error({
-                        message: loginFailedMessage
-                    })
                     break;
                 // 403 没有权限
                 case 403:
-                    router.replace({
-                        path: '/403'
-                    });
+                    if ( !__isSameUrl(router.currentRoute.fullPath, '/403') ) {
+                        router.replace({
+                            path: '/403',
+                            query: { redirect: router.currentRoute.fullPath }
+                        });
+                    }
                     break;
                 // 404请求不存在
                 case 404:
-                    router.replace({
-                        path: '/404',
-                        query: {
-                            redirect: router.currentRoute.fullPath
-                        }
-                    });
+                    if ( !__isSameUrl(router.currentRoute.fullPath, '/404') ) {
+                        router.replace({
+                            path: '/404',
+                            query: { redirect: router.currentRoute.fullPath }
+                        });
+                     }
                     break;
                 // 其他错误
                 default:
-                    // if (!__isSameUrl(router.currentRoute.fullPath, '/login')) {
-                    Message.error({
-                        message: [i18n.t("message.serverInternalError"), ': ', error.response.data.detail].join("")
-                    })
-                    // }
+                    if (error.response.status == 500) {
+                        Message.error({
+                            message: [i18n.t("message.serverInternalError"), ': ', error.response.data.detail].join("")
+                        })
+                    }
             }
             return Promise.reject(error.response);
         } else {

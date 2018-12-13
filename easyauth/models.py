@@ -60,6 +60,8 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
                     'deleting accounts.'))
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
     last_logout = models.DateTimeField(_('last logout'), blank=True, null=True)
+    last_login_ip = models.CharField(_('last login ip'), max_length=30, blank=True)
+    current_login_ip = models.CharField(_('current login ip'), max_length=30, blank=True)
 
     is_staff = models.BooleanField(
         _('staff status'),

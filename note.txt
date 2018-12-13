@@ -111,9 +111,11 @@ django-admin makemessages -l de
 
 或者使用下面的方式：
 
-python manage.py makemessages -l zh_hans -e py -i venv -i vue-ui -i build -i easyauth.egg-info
 //中文简体
-python manage.py makemessages -l en  -e py -i venv -i vue-ui -i build -i easyauth.egg-info   //英文
+python manage.py makemessages -l zh_hans -e py -i venv -i vue-ui -i build -i easyauth.egg-info
+
+//英文
+python manage.py makemessages -l en  -e py -i venv -i vue-ui -i build -i easyauth.egg-info
 执行命令后，Django会在根目录及其子目录下搜集所有需要翻译的字符串，默认情况下它会搜索.html、.txt和.py文件，然后在根目录的locale/LANG/LC_MESSAGES目录下创建一个django.po文件。对于上面的例子，目录就是locale/de/LC_MESSAGES/，文件就是locale/de/LC_MESSAGES/django.po。
 
 注意：在Windows下，需要提前安装GNU gettext工具！

@@ -1,7 +1,8 @@
 import vue from 'vue'
 import  vuex from 'vuex'
-import utils from '../components/common/utils'
-import apiConfig from '../components/common/apiConfig'
+// import utils from '../components/common/utils'
+import easyauth from '../components/common/easyauth'
+import config from '../components/config'
 
 
 vue.use(vuex)
@@ -16,14 +17,14 @@ const __getStoredObject = function(key) {
 
 const state = {
     loginUser: __getStoredObject("loginUser"),
-    // langCode: utils.cookie.get(apiConfig.lang_param) || apiConfig.default_lang_code,
-    langCode: localStorage.getItem(apiConfig.lang_param) || apiConfig.default_lang_code,
+    // langCode: utils.cookie.get(easyauth.config.lang_param) || config.defaultLangCode,
+    langCode: localStorage.getItem(easyauth.config.lang_param) || config.defaultLangCcode,
 }
 
 const mutations = {
     changeLangCode(state, langCode) {
-        // utils.cookie.set(apiConfig.lang_param, langCode)
-        localStorage.setItem(apiConfig.lang_param, langCode)
+        // utils.cookie.set(easyauth.config.lang_param, langCode)
+        localStorage.setItem(easyauth.config.lang_param, langCode)
         state.langCode=langCode;
     },
     saveLoginUser(state, loginUser) {

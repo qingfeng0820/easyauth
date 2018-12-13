@@ -1,16 +1,32 @@
 import { restclient } from "./restclient"
-import apiConfig from './apiConfig'
-import { join } from "path";
+import projConfig from '../config'
+import { join } from "path"
+
+var baseURL = ''
+
+if (projConfig.easyauthBaseURL) {
+    baseURL = projConfig.easyauthBaseURL
+} else if (projConfig.backendBaseURL) {
+    baseURL = projConfig.backendBaseURL
+}
+
+const config = {
+    base_url: baseURL,
+    authentication_api_prefix: '/api-auth',
+    user_admin_pai_prefix: '/api',
+    lang_param: "lang",
+}
 
 const authentication = {
-    loginUrl: join(apiConfig.authentication_api_prefix, "login"),
-    getLoginUserUrl: join(apiConfig.authentication_api_prefix, "me"),
-    logoutUrl: join(apiConfig.authentication_api_prefix, "loginout"),
+    loginUrl: config.base_url + join(config.authentication_api_prefix, "login"),
+    getLoginUserUrl: config.base_url + join(config.authentication_api_prefix, "me"),
+    changePasswordUrl: config.base_url + join(config.authentication_api_prefix, "password/change"),
+    logoutUrl: config.base_url + join(config.authentication_api_prefix, "loginout"),
     login: function(username, password) {
         return new Promise((resolve, reject) => {         
             var url = this.loginUrl
             var data = {}
-            data[apiConfig.login_field_name] = username
+            data[projConfig.loginFieldName] = username
             data["password"] = password
             restclient.postJson(url, data)       
             .then(logRes => {
@@ -50,6 +66,21 @@ const authentication = {
             })    
         });
     },
+    changePassword: function(password, new_password) {
+        return new Promise((resolve, reject) => {         
+            var url = this.changePasswordUrl
+            var data = {}
+            data['password'] = password
+            data["new_password"] = new_password
+            restclient.postJson(url, data)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        }); 
+    },
     logout: function() {
         return new Promise((resolve, reject) => {         
             var url = this.logoutUrl
@@ -65,5 +96,6 @@ const authentication = {
 }
 
 export default {
-    authentication
+    config,
+    authentication,
 }

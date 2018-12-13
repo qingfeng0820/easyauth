@@ -21,8 +21,8 @@ const hasRole = function(user, requiredRoles) {
         checkRoles = requiredRoles
     }
     var passed = false
-    checkRoles.forEach(function(role, i) {
-        userRoles.forEach(function(userRole, j) {
+    checkRoles.forEach((role, i)  => {
+        userRoles.forEach((userRole, j) => {
             if (role == userRole.name) {
                 passed = true;
                 return;
@@ -51,7 +51,7 @@ const hasPermission = function(user, requiredPermissions) {
         if (!userRoles) {
             return false
         }
-        userRoles.forEach(function(userRole, j) {
+        userRoles.forEach((userRole, j) => {
             passed = __permissionCheck(userRole.permissions, checkPermissions)
             if (passed) {
                 return
@@ -66,8 +66,8 @@ const __permissionCheck = function(userPermissions, checkPermissions) {
         return false
     }
     var passed = false
-    checkPermissions.forEach(function(permission, i) {
-        userPermissions.forEach(function(userPermission, j) {
+    checkPermissions.forEach((permission, i) => {
+        userPermissions.forEach((userPermission, j) => {
             if (permission == userPermission.codename) {
                 passed = true;
                 return;

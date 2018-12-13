@@ -137,7 +137,6 @@ const url = {
         }
         return queryStr;
     },
-
 }
 const cookie = {
     /**
@@ -201,7 +200,38 @@ set: function (_key, _val, _day, _path) {
     }
 }
 
+const loader = {
+    loadjs: function(filename, callback){
+        var fileref=document.createElement('script')
+        fileref.setAttribute("type","text/javascript")
+        fileref.setAttribute("src", filename)
+  
+        if (typeof fileref!="undefined") {
+            document.getElementsByTagName("head")[0].appendChild(fileref)
+            if(typeof callback == 'function') {
+                fileref.onload = function(){
+                    callback();
+                }
+            }
+        }
+    },
+    loadcss: function(filename, callback) {
+        var fileref=document.createElement("link")
+        fileref.setAttribute("rel", "stylesheet")
+        fileref.setAttribute("type", "text/css")
+        fileref.setAttribute("href", filename)
+        if (typeof fileref!="undefined") {
+            document.getElementsByTagName("head")[0].appendChild(fileref)
+            if(typeof callback == 'function') {
+                fileref.onload = function(){
+                    callback();
+                }
+            }
+        }        
+    },
+}
+
 
 export default {
-    url, cookie
+    url, cookie, loader
 }

@@ -1,20 +1,20 @@
 <template>
     <div class="login-wrap">
         <div class="ms-login">
-            <div class="ms-title">{{ $t('page.backendManagementSystemTitle') }}</div>
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="0px" class="ms-content">
+            <div class="ms-title">{{ $t('page.title') }}</div>
+            <el-form :model="loginForm" :rules="rules" ref="loginForm" label-width="0px" class="ms-content">
                 <el-form-item prop="username">
-                    <el-input v-model="ruleForm.username" :placeholder="$t('placeholder.username')" autocomplete="on">
+                    <el-input v-model="loginForm.username" :placeholder="$t('placeholder.username')" autocomplete="on">
                         <el-button slot="prepend" icon="el-icon-lx-people" tabindex="-1"></el-button>
                     </el-input>
                 </el-form-item>
                 <el-form-item prop="password">
-                    <el-input type="password" :placeholder="$t('placeholder.password')" v-model="ruleForm.password" @keyup.enter.native="submitForm('ruleForm')">
+                    <el-input type="password" :placeholder="$t('placeholder.password')" autocomplete="off" v-model="loginForm.password" @keyup.enter.native="submitForm('loginForm')">
                         <el-button slot="prepend" icon="el-icon-lx-lock" tabindex="-1"></el-button>
                     </el-input>
                 </el-form-item>
                 <div class="login-btn">
-                    <el-button type="primary" @click="submitForm('ruleForm')">{{ $t('label.loginButton') }}</el-button>
+                    <el-button type="primary" @click="submitForm('loginForm')">{{ $t('label.loginButton') }}</el-button>
                 </div>
                 <p class="login-tips"></p>
             </el-form>
@@ -23,15 +23,20 @@
 </template>
 
 <script>
-    // import api from './api';
+    import { Message } from 'element-ui'
+
     export default {
         data: function(){
             return {
-                ruleForm: {
+                loginForm: {
                     username: '',
                     password: ''
                 },
-                rules: {
+            }
+        },
+        computed: {
+            rules(){
+                let calRules = {
                     username: [
                         { required: true, message: this.$t('message.inputUsername'), trigger: 'blur' }
                     ],
@@ -39,13 +44,14 @@
                         { required: true, message: this.$t('message.inputPassword'), trigger: 'blur' }
                     ]
                 }
+                return calRules
             }
         },
         methods: {
             submitForm(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.$API.authentication.login(this.ruleForm.username, this.ruleForm.password)
+                      this.$easyauth.authentication.login(this.loginForm.username, this.loginForm.password)
                         .then(res => {
                             var redirectUrl = '/'
                             if (this.$route.query && this.$route.query.redirect) {
@@ -54,6 +60,9 @@
                             this.$router.push(redirectUrl);
                         })
                         .catch(err => {
+                            Message.error({
+                                message: [this.$t("message.loginFailed"), ': ', err.data.detail].join("")
+                        })
                         })
                     } else {
                         return false;
