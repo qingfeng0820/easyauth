@@ -1,5 +1,5 @@
 import i18n from '../i18n/i18n'
-import permission from './common/permisson'
+import permission from './common/permission'
 import Dashboard from '@/components/page/Dashboard'
 import HelloWorld from '@/components/HelloWorld'
 
@@ -68,6 +68,8 @@ var menu = [
                 getTitle:  function() {
                     return '表单相关'
                 },
+                
+               
             },
             subs: [
                 {
@@ -76,6 +78,7 @@ var menu = [
                         getTitle:  function() {
                             return '基本表单'
                         },
+                        
                     },
                 },
                 {
@@ -84,6 +87,8 @@ var menu = [
                         getTitle:  function() {
                             return '三级菜单'
                         },
+                        
+                        
                     },
                     subs: [
                         {
@@ -102,6 +107,7 @@ var menu = [
                                 getTitle:  function() {
                                     return 'markdown编辑器'
                                 },
+                                requiredPermissions: ['test']
                             },
                         },
                     ]

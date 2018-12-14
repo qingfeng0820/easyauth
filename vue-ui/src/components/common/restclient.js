@@ -10,6 +10,7 @@ import utils from './utils'
 import i18n from '../../i18n/i18n'
 import store from '../../store'
 import projConfig from '../config'
+import bus from './bus'
 
 axios.defaults.baseURL = projConfig.backendBaseURL;
 
@@ -72,6 +73,7 @@ axios.interceptors.response.use(
         } else {
             if (__isSameUrl(response.config.url, easyauth.authentication.getLoginUserUrl)) {
                 store.commit("saveLoginUser", response.data)
+                bus.$emit("updateSidebar")
             }
             return Promise.resolve(response);
         }

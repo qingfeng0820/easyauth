@@ -2,27 +2,25 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import i18n from '../i18n/i18n'
 import menu from '../components/menu'
-import permission from '../components/common/permisson'
-import HelloWorld from '@/components/HelloWorld'
 import Page_403 from '@/components/common/403'
 import Page_404 from '@/components/common/404'
 import Login from '@/components/common/Login'
 import Home from '@/components/common/Home'
-import Dashboard from '@/components/page/Dashboard'
 
 Vue.use(Router)
 
 var __homePage = "/dashboard"
 var __homePage_Set = false
-const __getChildRoutersFromMenu = function(currentMenu, level=1) {
+const __getChildRoutersFromMenu = function(currentMenu, level=1, parentPermissionMeta=null) {
   var childRouters = []
   if (level <= 0 || level > 3) {
      return childRouters
   }
   currentMenu.forEach((item, i) => {
+      var subPermissionMeta = item.meta && (item.meta.permissionCheck || item.meta.requiredRoles || item.meta.requiredPermissions)?item.meta:parentPermissionMeta
       if (item.subs) {
         if (level < 3) {
-          childRouters = childRouters.concat(__getChildRoutersFromMenu(item.subs, level + 1))
+          childRouters = childRouters.concat(__getChildRoutersFromMenu(item.subs, level + 1, subPermissionMeta))
         }
       } else {
           if (item.path && item.component) {
@@ -30,6 +28,20 @@ const __getChildRoutersFromMenu = function(currentMenu, level=1) {
               var route = {name: item.name, path: item.path, component: item.component};
               if (item.meta) {
                   route.meta = item.meta
+              }
+              if (parentPermissionMeta) {
+                  if (!item.meta) {
+                      item.meta = {}
+                  }
+                  if (!item.meta.permissionCheck && !item.meta.requiredRoles && !item.meta.requiredPermissions) {
+                      if (parentPermissionMeta.permissionCheck) {
+                         item.meta.permissionCheck = parentPermissionMeta.permissionCheck
+                      } else if (parentPermissionMeta.requiredRoles) {
+                        item.meta.requiredRoles = parentPermissionMeta.requiredRoles
+                      } else if (parentPermissionMeta.requiredPermissions) {
+                        item.meta.requiredPermissions = parentPermissionMeta.requiredPermissions
+                      } 
+                  }
               }
               if (item.default && !__homePage_Set) {
                 __homePage = item.path

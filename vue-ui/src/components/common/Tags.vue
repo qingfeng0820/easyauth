@@ -28,7 +28,6 @@
 
     const __homePage = "/dashboard"
     const __getDefaultPageFromMenu = function(currentMenu, level=1) {
-        var childRouters = []
         if (level <= 0 || level > 3) {
             return __homePage
         }

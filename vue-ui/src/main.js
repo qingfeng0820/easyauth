@@ -12,7 +12,7 @@ import i18n from './i18n/i18n'
 import utils from './components/common/utils'
 import easyauth from './components/common/easyauth'
 import store from './store'
-import permission from './components/common/permisson'
+import permission from './components/common/permission'
 import projConfig from './components/config'
 import bus from './components/common/bus'
 import supportLangs from './i18n/langs'
@@ -25,6 +25,7 @@ Vue.prototype.$RestClient = restclient;
 Vue.prototype.$easyauth = easyauth
 Vue.prototype.$projConfig = projConfig
 Vue.prototype.$bus = bus
+Vue.prototype.$permission = permission
 Vue.config.productionTip = false
 
 const __is_supported_lang = function(lang) {
