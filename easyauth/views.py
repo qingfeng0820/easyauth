@@ -15,7 +15,8 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler as rest_framework_exception_handler
 
 from easyauth import conf
-from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticated
+from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticated, PermissionViewGetPermission, \
+    UserViewGetPermission, GroupViewGetPermission
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
     GroupSerializer, PermissionSerializer
@@ -45,20 +46,26 @@ class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
 
 
 class GroupViewSet(QueryLowPermAdminModelViewSet):
+    query_permission_classes = (GroupViewGetPermission, )
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Permission.objects.all()
+    exclude_models = ['user', 'group', 'permission']
+    permission_set_patterns = ['add_%(model_name)s', 'change_%(model_name)s', 'delete_%(model_name)s']
+    exclude_permissions = []
+    for m in exclude_models:
+        exclude_permissions += [perm % {'model_name': m} for perm in permission_set_patterns]
+    queryset = Permission.objects.exclude(codename__in=exclude_permissions)
     serializer_class = PermissionSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (PermissionViewGetPermission,)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = (UserAdminPermission, )
+    permission_classes = (UserViewGetPermission, )
 
     filter_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
                      'date_joined', 'last_login')

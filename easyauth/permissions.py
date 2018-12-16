@@ -81,3 +81,27 @@ class DBBasedPermissionsAny(BasePermission):
 
 class DjangoModelPermissionsWithAuthenticated(PermissionsAll):
     permission_classes = (IsAuthenticated, DjangoModelPermissions)
+
+
+class QueryUserModelPermission(DBBasedPermissionsAll):
+    required_permission_names = "query_user"
+
+
+class QueryGroupModelPermission(DBBasedPermissionsAll):
+    required_permission_names = "query_group"
+
+
+class QueryPermissionModelPermission(DBBasedPermissionsAll):
+    required_permission_names = "query_permission"
+
+
+class UserViewGetPermission(PermissionsAny):
+    permission_classes = (UserAdminPermission, QueryUserModelPermission)
+
+
+class GroupViewGetPermission(PermissionsAny):
+    permission_classes = (UserAdminPermission, QueryGroupModelPermission)
+
+
+class PermissionViewGetPermission(PermissionsAny):
+    permission_classes = (UserAdminPermission, QueryPermissionModelPermission)

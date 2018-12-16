@@ -87,6 +87,11 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
+        permissions = (
+            ("query_user", _("Can query user model")),
+            ("query_group", _("Can query group model")),
+            ("query_permission", _("Can query permission model")),
+        )
         ordering = ('id',)
         abstract = True
 
