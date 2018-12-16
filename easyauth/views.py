@@ -19,8 +19,7 @@ from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticat
     UserViewGetPermission, GroupViewGetPermission
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
-    GroupSerializer, PermissionSerializer
-
+    GroupSerializer, PermissionSerializer, UserSerializerWithDepth, GroupSerializerWithDepth
 
 import logging
 
@@ -36,19 +35,26 @@ class QueryLowPermAdminModelViewSet(viewsets.ModelViewSet):
         self.is_query_permission = False
         if request.method.lower() == "get":
             self.is_query_permission = True
-        return super(viewsets.ModelViewSet, self).dispatch(request, *args, **kwargs)
+        return super(QueryLowPermAdminModelViewSet, self).dispatch(request, *args, **kwargs)
 
     def get_permissions(self):
         self.permission_classes = self.maintain_permission_classes
         if hasattr(self, 'is_query_permission') and self.is_query_permission:
             self.permission_classes = self.query_permission_classes
-        return super(viewsets.ModelViewSet, self).get_permissions()
+        return super(QueryLowPermAdminModelViewSet, self).get_permissions()
 
 
 class GroupViewSet(QueryLowPermAdminModelViewSet):
     query_permission_classes = (GroupViewGetPermission, )
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+
+    def get_serializer_class(self):
+        serializer_class = GroupSerializer
+        if hasattr(self, 'is_query_permission') and self.is_query_permission:
+            serializer_class = GroupSerializerWithDepth
+
+        return serializer_class
 
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -62,10 +68,11 @@ class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (PermissionViewGetPermission,)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(QueryLowPermAdminModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    permission_classes = (UserViewGetPermission, )
+    maintain_permission_classes = (UserAdminPermission,)
+    query_permission_classes = (UserViewGetPermission,)
 
     filter_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
                      'date_joined', 'last_login')
@@ -78,14 +85,14 @@ class UserViewSet(viewsets.ModelViewSet):
         if user_model.USER_DEPART_FIELD is not None and request.user.is_authenticated() and not request.user.is_superuser:
             self.depart = getattr(request.user, user_model.USER_DEPART_FIELD)
 
-        return super(viewsets.ModelViewSet, self).dispatch(request, *args, **kwargs)
+        return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         if hasattr(self, 'depart') and self.depart is not None:
             user_model = get_user_model()
             depart_id = self.depart.id
             request.data[user_model.USER_DEPART_FIELD] = depart_id
-        return super(viewsets.ModelViewSet, self).create(request, *args, **kwargs)
+        return super(UserViewSet, self).create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         if hasattr(self, 'depart') and self.depart is not None:
@@ -93,7 +100,7 @@ class UserViewSet(viewsets.ModelViewSet):
             depart_id = self.depart.id
             request.data[user_model.USER_DEPART_FIELD] = depart_id
         logger.info("Update user -> %s" % json.dumps(request.data))
-        return super(viewsets.ModelViewSet, self).update(request, *args, **kwargs)
+        return super(UserViewSet, self).update(request, *args, **kwargs)
 
     def get_queryset(self):
         user_model = get_user_model()
@@ -101,7 +108,14 @@ class UserViewSet(viewsets.ModelViewSet):
         if hasattr(self, 'depart') and self.depart is not None:
             filter_prop = {user_model.USER_DEPART_FIELD: self.depart}
             self.queryset = user_model.objects.filter(**filter_prop)
-        return super(viewsets.ModelViewSet, self).get_queryset()
+        return super(UserViewSet, self).get_queryset()
+
+    def get_serializer_class(self):
+        serializer_class = UserSerializer
+        if hasattr(self, 'is_query_permission') and self.is_query_permission:
+            serializer_class = UserSerializerWithDepth
+
+        return serializer_class
 
 
 class AdminResetUsePwdView(GenericAPIView):

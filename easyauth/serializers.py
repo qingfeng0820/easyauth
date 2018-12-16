@@ -19,6 +19,13 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class GroupSerializerWithDepth(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = '__all__'
+        depth = 1
+
+
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Permission
@@ -51,6 +58,18 @@ class UserSerializer(serializers.ModelSerializer):
         if raw_password:
             user._password = raw_password
         return user
+
+
+class UserSerializerWithDepth(UserSerializer):
+    class Meta:
+        model = get_user_model()
+        exclude = ('password', )
+        read_only_fields = ('is_superuser', 'date_joined', 'last_login', 'last_logout',
+                            'current_login_ip', 'last_login_ip')
+        extra_kwargs = {'date_joined': {'read_only': True},
+                        'last_login': {'read_only': True}, 'last_logout': {'read_only': True},
+                        'current_login_ip': {'read_only': True}, 'last_login_ip': {'read_only': True}}
+        depth = 2
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):

@@ -13,7 +13,7 @@ if (projConfig.easyauthBaseURL) {
 const config = {
     base_url: baseURL,
     authentication_api_prefix: '/api-auth',
-    user_admin_pai_prefix: '/api',
+    user_admin_api_prefix: '/api',
     lang_param: "lang",
 }
 
@@ -95,7 +95,50 @@ const authentication = {
     }
 }
 
+const useradmin = {
+    usersAdminUrl: config.base_url + join(config.user_admin_api_prefix, "users"),
+    rolesAdminUrl: config.base_url + join(config.user_admin_api_prefix, "groups"),
+    permissionsAdminUrl: config.base_url + join(config.user_admin_api_prefix, "permissions"),
+    getUsers() {
+        return new Promise((resolve, reject) => {         
+            var url = this.usersAdminUrl
+            restclient.get(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    getRoles() {
+        return new Promise((resolve, reject) => {         
+            var url = this.rolesAdminUrl
+            restclient.get(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });       
+    },
+    getPermissions() {
+        return new Promise((resolve, reject) => {         
+            var url = this.permissionsAdminUrl + 'page_size=100000'
+            restclient.get(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });       
+    },
+}
+
 export default {
     config,
     authentication,
+    useradmin,
 }
