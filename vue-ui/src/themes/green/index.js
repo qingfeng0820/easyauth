@@ -1,5 +1,5 @@
-import '../../static/css/theme-green/el.css';       // 浅绿色主题
-import '../../static/css/theme-green/color-green.css'
+import '../../../static/css/theme-green/el.css';       // 浅绿色主题
+import '../../../static/css/theme-green/color-green.css'
 
 const sidebarCss = {
     menu_background_color: '',
