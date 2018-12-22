@@ -19,6 +19,8 @@ axios.defaults.timeout = projConfig.requestTimeout;
 
 // post请求头
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
+axios.defaults.headers.put['Content-Type'] = 'application/json;charset=UTF-8';
+axios.defaults.headers.patch['Content-Type'] = 'application/json;charset=UTF-8';
 
 if (process.env.NODE_ENV == 'development') {
     axios.defaults.withCredentials = true; //意思是携带cookie信息,保持session的一致性
@@ -162,7 +164,7 @@ axios.interceptors.response.use(
  * @param {String} url [请求的url地址]
  * @param {Object} params [请求时携带的参数]
  */
-const get =(url, ...params)=>{
+const get =(url, params)=>{
     return new Promise((resolve, reject) =>{
         axios.get(url, {
             params: params
@@ -182,7 +184,7 @@ const get =(url, ...params)=>{
  */
 const post = (url,... params) =>{
     return new Promise((resolve, reject) => {
-        axios.post(url, QS.stringify(...params))
+        axios.post(url, QS.stringify(... params))
         .then(res => {
             resolve(res);
         })

@@ -43,7 +43,9 @@ class RequestLoggingMiddleware(object):
             from_host = "%s -> %s" % (request.META['HTTP_X_FORWARDED_FOR'], request.META['REMOTE_ADDR'])
         else:
             from_host = request.META['REMOTE_ADDR']
-        logger.info("[%s] %s '%s'", from_host, request.method, request.path)
+        querystr = request.GET.urlencode()
+        querystr = ("?%s" % querystr) if querystr else ""
+        logger.info("[%s] %s '%s%s'", from_host, request.method, request.path, querystr)
         logger.info("Request: ('Content-Type': '%s', ('Content-Length': '%s')",
                      request.META['CONTENT_TYPE'], request.META['CONTENT_LENGTH'])
         if AuthenticatedChecker.is_authenticated(request):

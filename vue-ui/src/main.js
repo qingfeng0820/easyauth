@@ -26,6 +26,7 @@ Vue.prototype.$easyauth = easyauth
 Vue.prototype.$projConfig = projConfig
 Vue.prototype.$bus = bus
 Vue.prototype.$permission = permission
+Vue.prototype.$utils = utils
 Vue.config.productionTip = false
 
 const __is_supported_lang = function(lang) {

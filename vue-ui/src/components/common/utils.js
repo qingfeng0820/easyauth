@@ -231,7 +231,15 @@ const loader = {
     },
 }
 
+const logstr = function (obj) {
+    var log = ""
+    for (var key in obj) {
+        log = "[" + key + "] " + obj[key] + ".\n"
+    }
+    return log
+}
+
 
 export default {
-    url, cookie, loader
+    url, cookie, loader, logstr
 }

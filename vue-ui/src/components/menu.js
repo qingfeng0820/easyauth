@@ -2,6 +2,7 @@ import i18n from '../i18n/i18n'
 import permission from './common/permission'
 import Dashboard from '@/components/page/Dashboard'
 import HelloWorld from '@/components/HelloWorld'
+import RoleAdmin from '@/components/page/RoleAdmin'
 
 var menu = [
         {
@@ -32,16 +33,16 @@ var menu = [
         {
             name: 'RoleAdmin',
             path: '/roleAdmin',
-            component: HelloWorld,
+            component: RoleAdmin,
             icon: 'el-icon-lx-group',
             meta: { 
                     getTitle: function() {
-                    return i18n.t("page.roleAdminTitle")
+                        return i18n.t("page.roleAdminTitle")
                     },
                     permissionCheck: function(user) {
-                    return permission.isSuperUser(user)
-                }
-            },
+                        return permission.isSuperUser(user)
+                    }
+                },
         },
         {
             name: "table",

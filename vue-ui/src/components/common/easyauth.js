@@ -111,10 +111,10 @@ const useradmin = {
             })    
         });
     },
-    getRoles() {
+    getRoles(params) {
         return new Promise((resolve, reject) => {         
             var url = this.rolesAdminUrl
-            restclient.get(url)
+            restclient.get(url, params)
             .then(res => {            
                 resolve(res);        
             })        
@@ -123,9 +123,59 @@ const useradmin = {
             })    
         });       
     },
+    createRole(newRole) {
+        return new Promise((resolve, reject) => {         
+            var url = this.rolesAdminUrl
+            if (newRole.permissions) {
+                var permissions = []
+                newRole.permissions.forEach(element => {
+                    permissions.push(element.id)
+                });
+                newRole.permissions = permissions
+            }
+            restclient.postJson(url, newRole)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    editRole(roleId, changeProps) {
+        return new Promise((resolve, reject) => {         
+            var url = [this.rolesAdminUrl, roleId.toString()].join("/")
+            if (changeProps.permissions) {
+                var permissions = []
+                changeProps.permissions.forEach(element => {
+                    permissions.push(element.id)
+                });
+                changeProps.permissions = permissions
+            }
+            restclient.patchJson(url, changeProps)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    deleteRole(roleId) {
+        return new Promise((resolve, reject) => {         
+            var url = [this.rolesAdminUrl, roleId.toString()].join("/")
+            restclient.del(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
     getPermissions() {
         return new Promise((resolve, reject) => {         
-            var url = this.permissionsAdminUrl + 'page_size=100000'
+            var url = this.permissionsAdminUrl + '?page_size=100000'
             restclient.get(url)
             .then(res => {            
                 resolve(res);        

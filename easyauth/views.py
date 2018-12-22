@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 import json
 import re
 
+import django_filters
+import rest_framework
 from django.contrib.auth import get_user_model
 from django.contrib.auth import (login as django_login, logout as django_logout)
 from django.contrib.auth.models import Group, Permission
@@ -48,6 +50,10 @@ class GroupViewSet(QueryLowPermAdminModelViewSet):
     query_permission_classes = (GroupViewGetPermission, )
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, rest_framework.filters.SearchFilter, rest_framework.filters.OrderingFilter,)
+    filter_fields = ('id', 'name', )
+    search_fields = ('name', )
+    ordering_fields = ('id', 'name', )
 
     def get_serializer_class(self):
         serializer_class = GroupSerializer
@@ -66,6 +72,10 @@ class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Permission.objects.exclude(codename__in=exclude_permissions)
     serializer_class = PermissionSerializer
     permission_classes = (PermissionViewGetPermission,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, rest_framework.filters.SearchFilter, rest_framework.filters.OrderingFilter,)
+    filter_fields = ('id', 'codename', )
+    search_fields = ('codename', 'name', )
+    ordering_fields = ('id', 'codename', )
 
 
 class UserViewSet(QueryLowPermAdminModelViewSet):
@@ -73,11 +83,13 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
     serializer_class = UserSerializer
     maintain_permission_classes = (UserAdminPermission,)
     query_permission_classes = (UserViewGetPermission,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, rest_framework.filters.SearchFilter, rest_framework.filters.OrderingFilter,)
 
     filter_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
-                     'date_joined', 'last_login')
+                     'date_joined', 'last_login', 'last_logout', 'last_login_ip')
+    search_fields = (get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'date_joined', )
     ordering_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
-                       'date_joined', 'last_login')
+                       'date_joined', 'last_login', 'last_logout', 'last_login_ip')
 
     def dispatch(self, request, *args, **kwargs):
         self.depart = None

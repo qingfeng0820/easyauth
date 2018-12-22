@@ -53,9 +53,11 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser'
     ),
-    # 'DEFAULT_FILTER_BACKENDS': (
-    #     'django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter'
-    # ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter'
+    ),
     'EXCEPTION_HANDLER': 'easyauth.views.exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'easyauth.pagination.CustomizedPageNumberPagination',
     'PAGE_SIZE': 500,

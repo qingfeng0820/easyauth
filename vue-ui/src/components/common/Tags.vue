@@ -56,7 +56,7 @@
         },
         methods: {
             isActive(path) {
-                return path.split("?")[0] === this.$route.fullPath.split("?")[0];
+                return path.split("?")[0].toLowerCase() === this.$route.fullPath.split("?")[0].toLowerCase();
             },
             // 关闭单个标签
             closeTag(index) {
@@ -99,7 +99,7 @@
             // 设置标签
             setTags(route){
                 const isExist = this.tagsList.some(item => {
-                    return item.path === route.fullPath.split("?")[0];
+                    return item.path.toLowerCase() === route.fullPath.split("?")[0].toLowerCase();
                 })
                 if(!isExist){
                     if(this.tagsList.length >= 8){

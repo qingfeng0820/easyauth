@@ -34,7 +34,7 @@
                         <a href="https://github.com/qingfeng0820/easyauth" target="_blank">
                             <el-dropdown-item>Git Hub</el-dropdown-item>
                         </a>
-                        <el-dropdown-item divided  command="loginout">{{ $t('label.logout') }}</el-dropdown-item>
+                        <el-dropdown-item divided  command="logout">{{ $t('label.logout') }}</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </div>
@@ -68,7 +68,7 @@
         methods:{
             // 用户名下拉菜单选择事件
             handleCommand(command) {
-                if(command == 'loginout') {
+                if(command == 'logout') {
                     this.$store.commit("clearLoginUser")
                     this.$router.push('/login');
                 } else if (command == 'modifyPassword') {

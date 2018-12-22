@@ -28,7 +28,7 @@
             new_password: '',
             confirm_new_password: '',
          },
-         formLabelWidth: '30%',
+         formLabelWidth: '20%',
          dialogFormVisible: this.showChangePwdPopup,
       }
     },
