@@ -85,17 +85,26 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
     query_permission_classes = (UserViewGetPermission,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, rest_framework.filters.SearchFilter, rest_framework.filters.OrderingFilter,)
 
-    filter_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
-                     'date_joined', 'last_login', 'last_logout', 'last_login_ip')
-    search_fields = (get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'date_joined', )
-    ordering_fields = ('id', get_user_model().USERNAME_FIELD, 'first_name', 'last_name', 'is_active', 'is_staff',
+    filter_fields = ('id', get_user_model().USERNAME_FIELD, 'last_name', 'first_name', 'is_active',
+                     'is_staff', 'date_joined', 'last_login', 'last_logout', 'last_login_ip')
+    search_fields = (get_user_model().USERNAME_FIELD, 'last_name', 'first_name', )
+    ordering_fields = ('id', get_user_model().USERNAME_FIELD, 'last_name', 'first_name', 'is_active', 'is_staff',
                        'date_joined', 'last_login', 'last_logout', 'last_login_ip')
+    if get_user_model().FILTER_FIELDS:
+        filter_fields += get_user_model().FILTER_FIELDS
+    if get_user_model().SEARCH_FIELDS:
+        search_fields += get_user_model().SEARCH_FIELDS
+    if get_user_model().ORDERING_FIELDS:
+        ordering_fields += get_user_model().ORDERING_FIELDS
 
     def dispatch(self, request, *args, **kwargs):
         self.depart = None
+        self.is_superuser = False
         user_model = get_user_model()
         if user_model.USER_DEPART_FIELD is not None and request.user.is_authenticated() and not request.user.is_superuser:
             self.depart = getattr(request.user, user_model.USER_DEPART_FIELD)
+        if request.user.is_superuser:
+            self.is_superuser = True
 
         return super(UserViewSet, self).dispatch(request, *args, **kwargs)
 
@@ -118,7 +127,10 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
         user_model = get_user_model()
         self.queryset = user_model.objects.all()
         if hasattr(self, 'depart') and self.depart is not None:
-            filter_prop = {user_model.USER_DEPART_FIELD: self.depart}
+            filter_prop = {user_model.USER_DEPART_FIELD: self.depart, 'is_superuser': False}
+            self.queryset = user_model.objects.filter(**filter_prop)
+        elif not hasattr(self, 'is_superuser') or not self.is_superuser:
+            filter_prop = {'is_superuser': False}
             self.queryset = user_model.objects.filter(**filter_prop)
         return super(UserViewSet, self).get_queryset()
 

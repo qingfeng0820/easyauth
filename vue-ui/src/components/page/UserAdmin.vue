@@ -16,18 +16,30 @@
                 <el-button type="primary" icon="el-icon-search" style="float:right" @click="search"> {{ $t('label.search') }} </el-button>
                 <el-input v-model="inputSearchWord" :placeholder="$t('placeholder.search')" class="handle-input mr10" style="float:right"></el-input>
             </div>
-            <el-table :data="data" border class="table" ref="multipleTable" 
-            @selection-change="handleSelectionChange" 
-            :default-sort = "{prop: 'id', order: 'ascending'}"
-            @sort-change="handleSortChange" 
-            stripe>
+            <el-table :data="data" border class="table" ref="multipleTable"
+             @selection-change="handleSelectionChange" 
+             :default-sort = "{prop: 'id', order: 'ascending'}"
+             @sort-change="handleSortChange"
+             stripe>
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="id" label="ID" width="120" sortable="custom" fixed>
+                <el-table-column prop="id" label="ID" width="80" fixed>
                 </el-table-column>
-                <el-table-column prop="name" :label="$t('label.name')" width="180" sortable="custom">
+                <el-table-column prop="last_name" :label="$t('label.name')" sortable="custom" :formatter="fullNameFormatter" width="100">
                 </el-table-column>
-                <el-table-column prop="permissions" :label="$t('label.privileges')" :formatter="permissionsColumnFormatter">
+                <el-table-column prop="phone" :label="$t('label.phone')" sortable="custom" width="120">
                 </el-table-column>
+                <el-table-column prop="date_joined" :label="$t('label.dateJoined')" sortable="custom" :formatter="dateJoinedFormatter" width="180">
+                </el-table-column>
+                <el-table-column prop="is_staff" :label="$t('label.isAdmin')" sortable="custom" :formatter="isStaffFormatter" width="120">
+                </el-table-column>
+                <el-table-column prop="is_active" :label="$t('label.isActive')" sortable="custom" :formatter="isActiveFormatter" width="120">
+                </el-table-column>
+                <el-table-column prop="roles" :label="$t('label.roles')" :formatter="rolesColumnFormatter">
+                </el-table-column>
+                <el-table-column prop="user_permissions" :label="$t('label.privileges')" :formatter="permissionsColumnFormatter">
+                </el-table-column>
+                <el-table-column prop="last_login" :label="$t('label.lastLogin')" sortable="custom" :formatter="lastLoginFormatter" width="180">
+                </el-table-column>                
                 <el-table-column :label="$t('label.operations')" width="180" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">{{ $t("label.edit") }}</el-button>
@@ -46,22 +58,60 @@
         </div>
 
         <!-- 编辑弹出框 -->
-        <el-dialog :title="this.idx == -1 ? $t('label.create') : $t('label.edit')" :visible.sync="editRoleVisible" width="60%">
+        <el-dialog :title="this.idx == -1 ? $t('label.create') : $t('label.edit')" :visible.sync="editUserVisible" width="60%">
             <el-form ref="form" :model="form" label-width="50px">
                 <el-form-item label="ID" :label-width="formLabelWidth" v-show="form.id > 0">
                     {{ form.id }}
                 </el-form-item>
-                <el-form-item :label="$t('label.name')" :label-width="formLabelWidth">
-                    <el-input v-model="form.name"></el-input>
+                <el-form-item :label="$t('label.lastName')" :label-width="formLabelWidth">
+                    <el-input v-model="form.last_name"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('label.firstName')" :label-width="formLabelWidth">
+                    <el-input v-model="form.first_name"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('label.phone')" :label-width="formLabelWidth">
+                    <el-input v-model="form.phone"></el-input>
+                </el-form-item>
+                <el-form-item :label="$t('label.isAdmin')" :label-width="formLabelWidth">
+                    <el-checkbox v-model="form.is_staff"></el-checkbox>
+                </el-form-item>
+                <el-form-item :label="$t('label.isActive')" :label-width="formLabelWidth">
+                    <el-checkbox v-model="form.is_active"></el-checkbox>
+                </el-form-item>             
+                <el-form-item :label="$t('label.roles')" :label-width="formLabelWidth">
+                    <div class="container">
+                        <div class="drag-box">
+                            <div class="drag-box-item">
+                                <div class="item-title">{{ $t("label.selected") }}</div>
+                                <draggable v-model="form.groups" :options="dragOptions">
+                                    <transition-group tag="div" id="selectedGroups" class="item-ul">
+                                        <div v-for="item in form.groups" class="drag-list" :key="item.id">
+                                            {{item.name}}
+                                        </div>
+                                    </transition-group>
+                                </draggable>
+                            </div>
+                            <div class="drag-box-item">
+                                <div class="item-title">{{ $t("label.selections") }}</div>
+                                <draggable v-model="form.availableGroups" :options="dragOptions">
+                                    <transition-group tag="div" id="availableGroups" class="item-ul">
+                                        <div v-for="item in form.availableGroups" class="drag-list" :key="item.id">
+                                            {{item.name}}
+                                        </div>
+                                    </transition-group>
+                                </draggable>
+                            </div>
+                        </div>
+                    </div>
                 </el-form-item>
                 <el-form-item :label="$t('label.privileges')" :label-width="formLabelWidth">
                     <div class="container">
                         <div class="drag-box">
                             <div class="drag-box-item">
                                 <div class="item-title">{{ $t("label.selected") }}</div>
-                                <draggable v-model="form.permissions" :options="dragOptions">
+                                <draggable v-model="form.user_permissions" :options="dragOptions">
                                     <transition-group tag="div" id="selectedPermissions" class="item-ul">
-                                        <div v-for="item in form.permissions" class="drag-list" :key="item.id">
+                                        <div v-for="item in form.user_permissions" class="drag-list" :key="item.id">
                                             {{item.codename}}
                                         </div>
                                     </transition-group>
@@ -83,16 +133,16 @@
 
             </el-form>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="editRoleVisible = false">{{ $t("label.cancel") }}</el-button>
+                <el-button @click="editUserVisible = false">{{ $t("label.cancel") }}</el-button>
                 <el-button type="primary" @click="saveEdit">{{ $t("label.confirm") }}</el-button>
             </span>
         </el-dialog>
 
         <!-- 删除提示框 -->
-        <el-dialog :title="$t('label.prompt')" :visible.sync="delRoleVisible" width="500px" center>
-            <div class="del-dialog-cnt">{{ $t("message.deleteWarning")}} {{ $t("label.role") }} {{ this.getDeleteRoleNames() }}？</div>
+        <el-dialog :title="$t('label.prompt')" :visible.sync="delUserVisible" width="500px" center>
+            <div class="del-dialog-cnt">{{ $t("message.deleteWarning")}} {{ $t("label.user") }} {{ this.getDeleteUserNames() }}？</div>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="delRoleVisible = false">{{ $t("label.cancel") }}</el-button>
+                <el-button @click="delUserVisible = false">{{ $t("label.cancel") }}</el-button>
                 <el-button type="primary" @click="deleteRow">{{ $t("label.confirm") }}</el-button>
             </span>
         </el-dialog>
@@ -101,11 +151,17 @@
 
 <script>
     import draggable from 'vuedraggable'
-    const maxPermissionCountForShowInTable = 6
+    const maxRoleOrPermissionCountForShowInTable = 3
     const emptyForm = {
         id: -1,
-        name: '',
-        permissions: [],
+        phone: '',
+        first_name: '',
+        last_name: '',
+        is_active: true,
+        is_staff: false,
+        groups: [],
+        availableGroups: [],
+        user_permissions: [],
         availablePermissions: [],
     }
     export default {
@@ -118,14 +174,15 @@
                 multipleSelection: [],
                 inputSearchWord: '',
                 searchWord: '',
-                editRoleVisible: false,
-                delRoleVisible: false,
-                roleCount: 0,
+                editUserVisible: false,
+                delUserVisible: false,
+                userCount: 0,
                 formLabelWidth: "20%",
                 availablePermissions: [],
-                sortProp: null,
+                availableGroups: [],
                 form: JSON.parse(JSON.stringify(emptyForm)),
                 idx: -1,
+                sortProp: null,
                 dragOptions:{
                     animation: 120,
                     scroll: true,
@@ -140,11 +197,18 @@
             }).catch(err => {
                 this.$message.error(`${this.$t("label.permission")} ${this.$t("message.retreiveFailed")}: ${this.$utils.logstr(err.data)}`)
             })
+
+            this.$easyauth.useradmin.getRoles({page_size: 100000}).then((res) => {
+                this.availableGroups = res.results;
+            }).catch(err => {
+                this.$message.error(`${this.$t("label.role")} ${this.$t("message.retreiveFailed")}: ${this.$utils.logstr(err.data)}`)
+            })
+
             this.getData();
         },
         computed: {
             totalPage() {
-                return this.roleCount
+                return this.userCount
             },
             data() {
                 return this.tableData
@@ -193,19 +257,54 @@
                         params.ordering = ordering
                     }
                 }
-                this.$easyauth.useradmin.getRoles(params).then((res) => {
-                    this.roleCount = res.count
+                this.$easyauth.useradmin.getUsers(params).then((res) => {
+                    this.userCount = res.count
                     this.tableData = res.results;
                 }).catch(err => {
-                    this.$message.error(`${this.$t("label.role")} ${this.$t("message.retreiveFailed")}: ${this.$utils.logstr(err.data)}`)
+                    this.$message.error(`${this.$t("label.user")} ${this.$t("message.retreiveFailed")}: ${this.$utils.logstr(err.data)}`)
                 })
+            },
+            fullNameFormatter(row, column) {
+                var fullName = ''
+                if (row.last_name) {
+                    fullName += row.last_name
+                }
+                if (row.first_name) {
+                    if (fullName) {
+                        fullName += ' '
+                    }
+                    fullName += row.first_name
+                }
+                return fullName
+            },
+            dateJoinedFormatter(row, column) {
+                return this.$utils.date.formatLocaleDateTime(row.date_joined)
+            },
+            lastLoginFormatter(row, column) {
+                 return this.$utils.date.formatLocaleDateTime(row.last_login)
+            },
+            isStaffFormatter(row, column) {
+                if (row.is_superuser) {
+                    return this.$t("label.superUser")
+                } else if (row.is_staff) {
+                    return this.$t("label.adminUser")
+                } else {
+                    return this.$t("label.normalUser")
+                }
+            },
+            isActiveFormatter(row, column) {
+                if (row.is_active) {
+                    return this.$t("label.active")
+                } else {
+                    return this.$t("label.disabled")
+                }
             },
             permissionsColumnFormatter(row, column) {
                 var permissionsStr = ""
                 var i = 0
-                if (row.permissions) {
-                    row.permissions.forEach(p => {
-                        if (++i > maxPermissionCountForShowInTable) {
+                if (row.user_permissions) {
+                    row.user_permissions.forEach(p => {
+                        if (++i > maxRoleOrPermissionCountForShowInTable) {
                             return;
                         }
                         permissionsStr += p.codename + ', '
@@ -214,31 +313,77 @@
                 if (permissionsStr) {
                     permissionsStr = permissionsStr.substring(0, permissionsStr.length - 2)
                 }
-                if (i > maxPermissionCountForShowInTable) {
+                if (i > maxRoleOrPermissionCountForShowInTable) {
                     permissionsStr += " ..."
                 }
                 return permissionsStr
+            },
+            rolesColumnFormatter(row, column) {
+                var rolesStr = ""
+                var i = 0
+                if (row.groups) {
+                    row.groups.forEach(r => {
+                        if (++i > maxRoleOrPermissionCountForShowInTable) {
+                            return;
+                        }
+                        rolesStr += r.name + ', '
+                    })
+                }
+                if (rolesStr) {
+                    rolesStr = rolesStr.substring(0, rolesStr.length - 2)
+                }
+                if (i > maxRoleOrPermissionCountForShowInTable) {
+                    rolesStr += " ..."
+                }
+                return rolesStr
             },
             search() {
                 this.searchWord = this.inputSearchWord;
                 this.cur_page = 1
                 this.getData()
             },
+            formatter(row, column) {
+                return row.address;
+            },
+            filterTag(value, row) {
+                return row.tag === value;
+            },
             handleCreate(index, row) {
                 this.resetIdx()
                 this.clearForm()
-                this.form.availablePermissions = this.getAvailablePermissions(this.form.permissions)
-                this.editRoleVisible = true;
+                this.form.availableGroups = this.getAvailableGroups(this.form.groups)
+                this.form.availablePermissions = this.getAvailablePermissions(this.form.user_permissions)
+                this.editUserVisible = true;
             },
             handleEdit(index, row) {
                 this.idx = index;
                 this.form = {
                     id: row.id,
-                    name: row.name,
-                    permissions: row.permissions,
-                    availablePermissions: this.getAvailablePermissions(row.permissions)
+                    phone: row.phone,
+                    first_name: row.first_name,
+                    last_name: row.last_name,
+                    is_active: row.is_active,
+                    is_staff: row.is_staff,
+                    groups: row.groups,
+                    availableGroups: this.getAvailableGroups(row.groups),
+                    user_permissions: row.user_permissions,
+                    availablePermissions: this.getAvailablePermissions(row.user_permissions)
                 }
-                this.editRoleVisible = true;
+                this.editUserVisible = true;
+            },
+            getAvailableGroups(groups) {
+                return this.availableGroups.filter(group =>{
+                        var contains = false
+                        groups.forEach(selectedGroup => {
+                            if (selectedGroup.id == group.id) {
+                                contains = true
+                                return
+                            }
+                        })
+                        if (!contains) {
+                           return group
+                        }
+                    })
             },
             getAvailablePermissions(permissions) {
                 return this.availablePermissions.filter(permission =>{
@@ -256,17 +401,17 @@
             },
             handleDelete(index, row) {
                 this.idx = index;
-                this.delRoleVisible = true;
+                this.delUserVisible = true;
             },
             handleDeleteAll(index, row) {
                 this.resetIdx()
                 if (this.multipleSelection.length > 0) {
-                    this.delRoleVisible = true;
+                    this.delUserVisible = true;
                 }
             },
-            getDeleteRoleNames() {
+            getDeleteUserNames() {
                 if (this.idx > 0) {
-                    return '"' + this.tableData[this.idx].name + '"'
+                    return '"' + this.tableData[this.idx][this.$projConfig.loginFieldName] + '"'
                 } else if (this.multipleSelection.length > 0) {
                     var roles = ""
                     var maxShowCount = 3
@@ -278,7 +423,7 @@
                         } else if (count > 1) {
                             roles += ", "
                         }
-                        roles += item.name
+                        roles += item[this.$projConfig.loginFieldName]
                     })
                     return '"' + roles + '"'
                 }
@@ -288,9 +433,9 @@
                 var removeIds = []
                 var failedCount = 0
                 var selectedCount = this.multipleSelection.length
-                var delRoleNames = this.getDeleteRoleNames()
+                var delUserNames = this.getDeleteUserNames()
                 this.multipleSelection.forEach(item => {
-                    this.$easyauth.useradmin.deleteRole(item.id).then((res) => {
+                    this.$easyauth.useradmin.deleteUser(item.id).then((res) => {
                         removeIds.push(item.id)
                         if (removeIds.length + failedCount == selectedCount) {
                             removeIds.forEach(i => {
@@ -301,11 +446,11 @@
                                     }
                                 })
                             })
-                            this.$message.success(`${this.$t("label.role")} "${delRoleNames}" ${this.$t("message.deleteSuccessfully")}`)
+                            this.$message.success(`${this.$t("label.user")} "${delUserNames}" ${this.$t("message.deleteSuccessfully")}`)
                         }
                     }).catch(err => {
                         failedCount ++ 
-                        this.$message.error(`${this.$t("label.role")} ${item.name} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
+                        this.$message.error(`${this.$t("label.user")} ${item[this.$projConfig.loginFieldName]} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
                         if (removeIds.length + failedCount == selectedCount) {
                             removeIds.forEach(i => {
                                 this.tableData.some((d, index) => {
@@ -338,43 +483,55 @@
             // 保存编辑
             saveEdit() {
                 if (this.form.id > 0) {
-                    this.$easyauth.useradmin.editRole(this.form.id, {name: this.form.name, permissions: this.form.permissions})
+                    var changeProps = {}
+                    for (var key in this.form) {
+                        if (key != 'id' && key != 'availableGroups' && key != 'availablePermissions') {
+                            changeProps[key] = this.form[key]
+                        }
+                    }
+                    this.$easyauth.useradmin.editUser(this.form.id, changeProps)
                     .then((res) => {
                         this.$set(this.tableData, this.idx, this.form);
                         this.resetIdx()
-                        this.$message.success(`${this.$t("label.role")} ${this.form.id} ${this.$t('message.modifySuccessfully')}`);
+                        this.$message.success(`${this.$t("label.user")} ${this.form.id} ${this.$t('message.modifySuccessfully')}`);
                         this.clearForm()
                     }).catch(err => {
-                        this.$message.error(`${this.$t("label.role")} ${this.form.id} ${this.$t("message.modifyFailed")}: ${this.$utils.logstr(err.data)}`)
+                        this.$message.error(`${this.$t("label.user")} ${this.form.id} ${this.$t("message.modifyFailed")}: ${this.$utils.logstr(err.data)}`)
                     })
                 } else {
-                    this.$easyauth.useradmin.createRole({name: this.form.name, permissions: this.form.permissions})
+                    var newUser = {}
+                    for (var key in this.form) {
+                        if (key != 'id' && key != 'availableGroups' && key != 'availablePermissions') {
+                            newUser[key] = this.form[key]
+                        }
+                    }
+                    this.$easyauth.useradmin.createUser(newUser)
                     .then((res) => {
                         this.resetIdx()
-                        this.$message.success(`${this.$t("label.role")} ${this.form.name}  ${this.$t('message.createSuccessfully')}`);
+                        this.$message.success(`${this.$t("label.user")} ${this.form[this.$projConfig.loginFieldName]}  ${this.$t('message.createSuccessfully')}`);
                         this.clearForm()
                         this.getData()
                     }).catch(err => {
-                        this.$message.error(`${this.$t("label.role")} ${this.form.name} ${this.$t("message.createFailed")}: ${this.$utils.logstr(err.data)}`)
+                        this.$message.error(`${this.$t("label.user")} ${this.form[this.$projConfig.loginFieldName]} ${this.$t("message.createFailed")}: ${this.$utils.logstr(err.data)}`)
                     })
                 }
-                this.editRoleVisible = false;
+                this.editUserVisible = false;
             },
             // 确定删除
             deleteRow(){
                 if (this.idx > 0) {
                     var delRow = this.tableData[this.idx];
-                    this.$easyauth.useradmin.deleteRole(delRow.id).then((res) => {
+                    this.$easyauth.useradmin.deleteUser(delRow.id).then((res) => {
                         this.tableData.splice(this.idx, 1);
                         this.resetIdx()
-                        this.$message.success(`${this.$t("label.role")} ${delRow.name} ${this.$t('message.deleteSuccessfully')}`);
+                        this.$message.success(`${this.$t("label.user")} ${delRow[this.$projConfig.loginFieldName]}  ${this.$t('message.deleteSuccessfully')}`);
                     }).catch(err => {
-                        this.$message.error(`${this.$t("label.role")} ${delRow.name} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
+                        this.$message.error(`${this.$t("label.user")} ${delRow[this.$projConfig.loginFieldName]} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
                     })
                 } else if (this.multipleSelection.length > 0) {
                     this.delAll()
                 }
-                this.delRoleVisible = false;
+                this.delUserVisible = false;
             }
         }
     }

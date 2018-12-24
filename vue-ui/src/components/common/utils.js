@@ -240,6 +240,21 @@ const logstr = function (obj) {
 }
 
 
+const date = {
+    formatLocaleDateTime: function(dateStr) {
+        var d = new Date(dateStr)
+        return [d.toLocaleDateString(), d.toLocaleTimeString()].join(" ")
+    },
+    formatLocaleDate: function(dateStr) {
+        var d = new Date(dateStr)
+        return d.toLocaleDateString()
+    },
+    formatLocaleTime: function(dateStr) {
+        var d = new Date(dateStr)
+        return d.toLocaleTimeString()
+    },
+}
+
 export default {
-    url, cookie, loader, logstr
+    url, cookie, loader, logstr, date
 }

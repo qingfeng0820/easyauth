@@ -41,7 +41,7 @@ _pattern = re.compile(r"^((\d{3,4}-)?\d{7,8})$|(1[3-9][0-9]{9})")
 def _phone_validator(phone):
     if not _pattern.match(phone):
         raise ValidationError(
-            _('%s is a invalid phone number' % phone),
+            _('%s is a invalid phone number') % phone,
         )
 
 
@@ -83,6 +83,9 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "phone"
 
     USER_DEPART_FIELD = None
+    FILTER_FIELDS = ()
+    SEARCH_FIELDS = ()
+    ORDERING_FIELDS = ()
 
     objects = UserManager()
 
@@ -95,18 +98,13 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin):
         ordering = ('id',)
         abstract = True
 
-    def get_full_name(self):
+    @property
+    def full_name(self):
         """
         Returns the first_name plus the last_name, with a space in between.
         """
         full_name = '%s %s' % (self.first_name, self.last_name)
         return full_name.strip()
-
-    def get_short_name(self):
-        """
-        Returns the short name for the user.
-        """
-        return self.first_name
 
     def password_reset_pre_process(self, validate_data):
         pass

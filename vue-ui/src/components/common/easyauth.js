@@ -99,10 +99,74 @@ const useradmin = {
     usersAdminUrl: config.base_url + join(config.user_admin_api_prefix, "users"),
     rolesAdminUrl: config.base_url + join(config.user_admin_api_prefix, "groups"),
     permissionsAdminUrl: config.base_url + join(config.user_admin_api_prefix, "permissions"),
-    getUsers() {
+    getUsers(params) {
         return new Promise((resolve, reject) => {         
             var url = this.usersAdminUrl
-            restclient.get(url)
+            restclient.get(url, params)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    createUser(newUser) {
+        return new Promise((resolve, reject) => {         
+            var url = this.usersAdminUrl
+            if (newUser.groups) {
+                var groups = []
+                newUser.groups.forEach(element => {
+                    groups.push(element.id)
+                });
+                newUser.groups = groups
+            }
+            if (newUser.user_permissions) {
+                var user_permissions = []
+                newUser.user_permissions.forEach(element => {
+                    user_permissions.push(element.id)
+                });
+                newUser.user_permissions = user_permissions
+            }
+            restclient.postJson(url, newUser)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    editUser(userId, changeProps) {
+        return new Promise((resolve, reject) => {         
+            var url = [this.usersAdminUrl, userId.toString()].join("/")
+            if (changeProps.groups) {
+                var groups = []
+                changeProps.groups.forEach(element => {
+                    groups.push(element.id)
+                });
+                changeProps.groups = groups
+            }
+            if (changeProps.user_permissions) {
+                var user_permissions = []
+                changeProps.user_permissions.forEach(element => {
+                    user_permissions.push(element.id)
+                });
+                changeProps.user_permissions = user_permissions
+            }
+            restclient.patchJson(url, changeProps)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    deleteUser(userId) {
+        return new Promise((resolve, reject) => {         
+            var url = [this.usersAdminUrl, userId.toString()].join("/")
+            restclient.del(url)
             .then(res => {            
                 resolve(res);        
             })        

@@ -2,6 +2,7 @@ import i18n from '../i18n/i18n'
 import permission from './common/permission'
 import Dashboard from '@/components/page/Dashboard'
 import HelloWorld from '@/components/HelloWorld'
+import UserAdmin from '@/components/page/UserAdmin'
 import RoleAdmin from '@/components/page/RoleAdmin'
 
 var menu = [
@@ -19,7 +20,7 @@ var menu = [
         {
             name: 'UserAdmin',
             path: '/userAdmin',
-            component: HelloWorld,
+            component: UserAdmin,
             icon: 'el-icon-lx-people',
             meta: { 
                 getTitle:  function() {
