@@ -9,7 +9,7 @@
             <div class="handle-box">
                 <el-button-group>
                     <el-button type="primary" icon="el-icon-plus" class="handle-create mr10" @click="handleCreate">{{ $t("label.create") }}</el-button>
-                    <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="handleDeleteAll">{{ $t("label.batchDelete") }}</el-button>
+                    <el-button type="danger" icon="el-icon-delete" :disabled="multipleSelection.length == 0" class="handle-del mr10" @click="handleDeleteAll">{{ $t("label.batchDelete") }}</el-button>
                     <el-button type="success" icon="el-icon-refresh" class="handle-refresh mr10" @click="getData">{{ $t("label.refresh") }}</el-button>
                 </el-button-group>
 
@@ -22,7 +22,7 @@
              @sort-change="handleSortChange"
              stripe>
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
-                <el-table-column prop="id" label="ID" width="80" fixed>
+                <el-table-column prop="id" label="ID" width="80" sortable="custom" fixed>
                 </el-table-column>
                 <el-table-column prop="last_name" :label="$t('label.name')" sortable="custom" :formatter="fullNameFormatter" width="100">
                 </el-table-column>
@@ -30,8 +30,10 @@
                 </el-table-column>
                 <el-table-column prop="date_joined" :label="$t('label.dateJoined')" sortable="custom" :formatter="dateJoinedFormatter" width="180">
                 </el-table-column>
-                <el-table-column prop="is_staff" :label="$t('label.isAdmin')" sortable="custom" :formatter="isStaffFormatter" width="120">
+                <!--
+                <el-table-column prop="is_staff" :label="$t('label.isStaff')" sortable="custom" :formatter="isStaffFormatter" width="120">
                 </el-table-column>
+                -->
                 <el-table-column prop="is_active" :label="$t('label.isActive')" sortable="custom" :formatter="isActiveFormatter" width="120">
                 </el-table-column>
                 <el-table-column prop="roles" :label="$t('label.roles')" :formatter="rolesColumnFormatter">
@@ -40,10 +42,11 @@
                 </el-table-column>
                 <el-table-column prop="last_login" :label="$t('label.lastLogin')" sortable="custom" :formatter="lastLoginFormatter" width="180">
                 </el-table-column>                
-                <el-table-column :label="$t('label.operations')" width="180" align="center">
+                <el-table-column :label="$t('label.operations')" width="100" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">{{ $t("label.edit") }}</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">{{ $t("label.delete") }}</el-button>
+                        <el-button type="text" :title="$t('label.edit')" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                        <el-button type="text" :title="$t('label.resetPassword')" icon="el-icon-lx-edit" @click="handleResetPassword(scope.$index, scope.row)" :disabled="resetPasswordDisable(scope.row)"></el-button>
+                        <el-button type="text" :title="$t('label.delete')" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -72,9 +75,11 @@
                 <el-form-item :label="$t('label.phone')" :label-width="formLabelWidth">
                     <el-input v-model="form.phone"></el-input>
                 </el-form-item>
-                <el-form-item :label="$t('label.isAdmin')" :label-width="formLabelWidth">
+                <!--
+                <el-form-item :label="$t('label.isStaff')" :label-width="formLabelWidth">
                     <el-checkbox v-model="form.is_staff"></el-checkbox>
                 </el-form-item>
+                -->
                 <el-form-item :label="$t('label.isActive')" :label-width="formLabelWidth">
                     <el-checkbox v-model="form.is_active"></el-checkbox>
                 </el-form-item>             
@@ -138,6 +143,15 @@
             </span>
         </el-dialog>
 
+        <!-- 重置密码提示框 -->
+        <el-dialog :title="$t('label.prompt')" :visible.sync="resetUserPwdVisible" width="500px" center>
+            <div class="del-dialog-cnt">{{ $t("message.resetUserPassword")}}: {{ (idx > 0) ? this.tableData[this.idx][this.$projConfig.loginFieldName] : '' }}？</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="resetUserPwdVisible = false">{{ $t("label.cancel") }}</el-button>
+                <el-button type="primary" @click="resetUserPwd">{{ $t("label.confirm") }}</el-button>
+            </span>
+        </el-dialog>
+
         <!-- 删除提示框 -->
         <el-dialog :title="$t('label.prompt')" :visible.sync="delUserVisible" width="500px" center>
             <div class="del-dialog-cnt">{{ $t("message.deleteWarning")}} {{ $t("label.user") }} {{ this.getDeleteUserNames() }}？</div>
@@ -176,6 +190,7 @@
                 searchWord: '',
                 editUserVisible: false,
                 delUserVisible: false,
+                resetUserPwdVisible: false,
                 userCount: 0,
                 formLabelWidth: "20%",
                 availablePermissions: [],
@@ -238,6 +253,9 @@
             clearForm() {
                 this.form = JSON.parse(JSON.stringify(emptyForm))
             },
+            resetPasswordDisable(row) {
+                return !row.is_active
+            },
             // 获取 role和permission 数据
             getData() {
                 this.resetIdx()
@@ -284,12 +302,10 @@
                  return this.$utils.date.formatLocaleDateTime(row.last_login)
             },
             isStaffFormatter(row, column) {
-                if (row.is_superuser) {
-                    return this.$t("label.superUser")
-                } else if (row.is_staff) {
-                    return this.$t("label.adminUser")
+                if (row.is_staff) {
+                    return this.$t("label.regular")
                 } else {
-                    return this.$t("label.normalUser")
+                    return this.$t("label.outSource")
                 }
             },
             isActiveFormatter(row, column) {
@@ -370,6 +386,10 @@
                     availablePermissions: this.getAvailablePermissions(row.user_permissions)
                 }
                 this.editUserVisible = true;
+            },
+            handleResetPassword(index, row) {
+                this.idx = index;
+                this.resetUserPwdVisible = true;
             },
             getAvailableGroups(groups) {
                 return this.availableGroups.filter(group =>{
@@ -517,8 +537,20 @@
                 }
                 this.editUserVisible = false;
             },
+            resetUserPwd() {
+                if (this.idx > 0) {
+                    var resetRow = this.tableData[this.idx];
+                    this.$easyauth.useradmin.resetUserPwd(resetRow.id).then((res) => {
+                        this.resetIdx()
+                        this.$message.success(`${this.$t("label.user")} ${resetRow[this.$projConfig.loginFieldName]}  ${this.$t('message.resetUserPasswordSuccessfully')}`);
+                    }).catch(err => {
+                        this.$message.error(`${this.$t("label.user")} ${resetRow[this.$projConfig.loginFieldName]} ${this.$t("message.resetUserPasswordFailed")}: ${this.$utils.logstr(err.data)}`)
+                    })
+                }
+                this.resetUserPwdVisible = false;
+            },
             // 确定删除
-            deleteRow(){
+            deleteRow() {
                 if (this.idx > 0) {
                     var delRow = this.tableData[this.idx];
                     this.$easyauth.useradmin.deleteUser(delRow.id).then((res) => {

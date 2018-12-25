@@ -59,6 +59,7 @@ from django.db import models
 
 from easyauth.models import AbstractUser  
     
+
 class User(AbstractUser):
     pass  
 '''

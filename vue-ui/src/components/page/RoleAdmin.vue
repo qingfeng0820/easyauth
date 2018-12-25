@@ -9,7 +9,7 @@
             <div class="handle-box">
                 <el-button-group>
                     <el-button type="primary" icon="el-icon-plus" class="handle-create mr10" @click="handleCreate">{{ $t("label.create") }}</el-button>
-                    <el-button type="danger" icon="el-icon-delete" class="handle-del mr10" @click="handleDeleteAll">{{ $t("label.batchDelete") }}</el-button>
+                    <el-button type="danger" icon="el-icon-delete" :disabled="multipleSelection.length == 0" class="handle-del mr10" @click="handleDeleteAll">{{ $t("label.batchDelete") }}</el-button>
                     <el-button type="success" icon="el-icon-refresh" class="handle-refresh mr10" @click="getData">{{ $t("label.refresh") }}</el-button>
                 </el-button-group>
 
@@ -28,10 +28,10 @@
                 </el-table-column>
                 <el-table-column prop="permissions" :label="$t('label.privileges')" :formatter="permissionsColumnFormatter">
                 </el-table-column>
-                <el-table-column :label="$t('label.operations')" width="180" align="center">
+                <el-table-column :label="$t('label.operations')" width="80" align="center">
                     <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">{{ $t("label.edit") }}</el-button>
-                        <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">{{ $t("label.delete") }}</el-button>
+                        <el-button type="text" :title="$t('label.edit')" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
+                        <el-button type="text" :title="$t('label.delete')" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>

@@ -2,6 +2,7 @@
 # coding=utf-8
 
 # from __future__ import unicode_literals
+import sys
 
 from setuptools import setup, find_packages
 import easyauth.make_project as make_project
@@ -14,8 +15,10 @@ def read_requirements(filename):
         return f.read().splitlines()
 
 
-print("preparing project skeleton...")
-make_project.prepare_project_skeleton_for_setup()
+if "sdist" in sys.argv or 'bdist_wheel' in sys.argv or 'bdist_rpm' in sys.argv or 'bdist_wininst' in sys.argv:
+    print("preparing project skeleton...")
+    make_project.prepare_project_skeleton_for_setup()
+
 setup(
     name='easyauth',
     version=__import__('easyauth').__version__,
@@ -32,7 +35,7 @@ setup(
         'easyauth': make_project.get_package_data_for_setup('easyauth/static') +
                     make_project.get_package_data_for_setup('easyauth/locale'),
     },
-    data_files=make_project.get_data_files_for_setup(),
+    data_files=make_project.get_data_files_for_setup() + ['requirements.txt', 'test-requirements.txt'],
     description=(
         'A simplified restful style authentication lib based on Django and Rest Framework.'
     ),
@@ -60,5 +63,6 @@ setup(
 
 )
 
-print("clean prepared project skeleton")
-make_project.clean_prepared_project_skeleton_after_setup()
+if "sdist" in sys.argv or 'bdist_wheel' in sys.argv or 'bdist_rpm' in sys.argv or 'bdist_wininst' in sys.argv:
+    print("clean prepared project skeleton")
+    make_project.clean_prepared_project_skeleton_after_setup()

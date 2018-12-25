@@ -1,4 +1,4 @@
-const isAdminUser = function(user) {
+const isStaff = function(user) {
     return user.is_staff
 }
 
@@ -7,7 +7,7 @@ const isSuperUser = function(user) {
 }
 
 const hasRole = function(user, requiredRoles) {
-    if (!requiredRoles) {
+    if (!requiredRoles || requiredRoles.lenght == 0) {
         return true
     }
     var userRoles = user.groups;
@@ -36,7 +36,7 @@ const hasRole = function(user, requiredRoles) {
 }
 
 const hasPermission = function(user, requiredPermissions) {
-    if (!requiredPermissions) {
+    if (!requiredPermissions || requiredPermissions.length == 0) {
         return true
     }
     var checkPermissions
@@ -65,14 +65,14 @@ const __permissionCheck = function(userPermissions, checkPermissions) {
     if (!userPermissions) {
         return false
     }
-    var passed = false
+    var passed = true
     checkPermissions.forEach((permission, i) => {
         userPermissions.forEach((userPermission, j) => {
-            if (permission == userPermission.codename) {
-                passed = true;
+            if (permission != userPermission.codename) {
+                passed = false;
                 return;
             }
-            if (passed) {
+            if (!passed) {
                 return;
             }   
         })
@@ -81,5 +81,5 @@ const __permissionCheck = function(userPermissions, checkPermissions) {
 }
 
 export default {
-    isAdminUser, isSuperUser, hasRole, hasPermission,
+    isStaff, isSuperUser, hasRole, hasPermission,
 }

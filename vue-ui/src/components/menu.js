@@ -26,9 +26,7 @@ var menu = [
                 getTitle:  function() {
                     return i18n.t("page.userAdminTitle")
                 },
-                permissionCheck: function(user) {
-                    return permission.isAdminUser(user)
-                },
+                requiredPermissions: ['query_group', 'query_permission', 'add_user', 'change_user', 'delete_user'],
             },
         },
         {

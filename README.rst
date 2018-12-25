@@ -16,9 +16,113 @@ Installation
 
 from pypi
 
-.. code-block:: python
+.. code-block:: shell
 
     pip install easyauth
+
+
+
+Setup your own project
+--------
+
+1. Create your app by below command:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: shell
+
+    > make_project {your_app_name}
+
+2. Setup backend which based on django
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1). Change the django project configuration by {your_app_name}/settings/local.py or {your app name}/settings/production.py
+    - You can keep the configuration as default if you just want to trial
+
+2). Change your user mode located in {your_app_name}/models.py
+    - see below example code
+
+.. code-block:: python
+
+    from easyauth.models import AbstractUser
+
+
+    class User(AbstractUser):
+        # you can define additional fields for your User Model
+
+        # You can specify the USERNAME_FIELD field.
+        # Default is phone
+        USERNAME_FIELD = {Other field to stand for username}
+        {Other field} = models.CharField(...)
+
+        # You can specify the USER_DEPART_FIELD field if you user model is grouped by department or company
+        # In this case, an admin in a company cannot maintain the users in other company
+        # Default value is None
+        USER_DEPART_FIELD = "company"
+        company = models.ForeignKey(Company, related_name='users', null=True)
+
+        # Because the User model related views are defined in easyauth, you cannot create or change filter fields for filtering
+        # But you can append the field in this sub user model to filter fields by below properties
+        FILTER_FIELDS = ('comany__name', ...)
+        SEARCH_FIELDS = (...)
+        ORDERING_FIELDS = (...)
+
+3). Add your own models, serializers, views
+
+4). Go to your app folder to initiate database
+    - run below commands:
+
+.. code-block:: shell
+
+    your_app_name> python manage.py makemigrations
+    your_app_name> python manage.py makemigrations {your_app_name}
+    your_app_name> python manage.py migrate
+
+5). Then create a superuser
+    - run below command:
+
+.. code-block:: shell
+
+    your_app_name> python manage.py createsuperuser
+
+6). Run your django based backend by below command:
+
+.. code-block:: shell
+
+    your_app_name> python manage.py runserver 0.0.0.0:80
+
+7). Have a test
+    - Please use login API to login first
+    - Then you can try below restful APIs
+        - user group(role) admin APIs (super user or have related permissions)
+            - /api/groups GET: Get all user groups (super user or have 'query_group' permission)
+            - /api/groups POST: Create an user group  (super user)
+            - /api/groups/[group_id] GET: Get an user group  (super user or have 'query_group' permission)
+            - /api/groups/[group_id] PUT or PATCH: Modify an user group (super user)
+            - /api/groups/[group_id] DELETE: Delete an user group (super user)
+        - user admin APIs (super user or have related permissions, if department enabled for user model, user can only maintain users in the same department if he/she has related permissions)
+            - /api/users GET: Get all users  (super user or have 'query_user' permission)
+            - /api/users POST: Create an user (super user)    (super user or have 'create_user' permission)
+            - /api/users/[user_id] GET: Get a specific user   (super user or have 'query_user' permission)
+            - /api/users/[user_id] PUT or PATCH: Modify a specific user  (super user or have 'change_user' permission)
+            - /api/users/[user_id] DELETE: Delete a specific user   (super user or have 'delete_user' permission)
+            - /api/users/[user_id]/reset/password PUT: Reset to default password for a specific user (super user or have 'change_user' permission)
+        - query permission API (permissions are defined in models code)
+            - /api/permissions GET: Get all permissions (super user or have 'query_permission' permission)
+            - /api/permissions/[permission_id] GET: Get a specific permission (super user or have 'query_permission' permission)
+        - authentication APIs
+            - /api-auth/login POST: User login
+            - /api-auth/logout POST (or GET if enabled): User logout
+            - /api-auth/me PUT or PATCH: Modify current login user
+            - /api-auth/me GET: Get current login user
+            - /api-auth/password/change PUT: Change the current login user's password
+            - /api-auth/register POST: Register User (This API can be disabled by configuration)
+        - Your own APIs
+
+
+3. Setup frontend which based Vue + Element-UI
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 
 Tutorial

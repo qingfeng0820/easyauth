@@ -72,7 +72,7 @@ const authentication = {
             var data = {}
             data['password'] = password
             data["new_password"] = new_password
-            restclient.postJson(url, data)
+            restclient.putJson(url, data)
             .then(res => {            
                 resolve(res);        
             })        
@@ -165,8 +165,20 @@ const useradmin = {
     },
     deleteUser(userId) {
         return new Promise((resolve, reject) => {         
-            var url = [this.usersAdminUrl, userId.toString()].join("/")
+            var url = [this.usersAdminUrl, userId.toString(), ''].join("/")
             restclient.del(url)
+            .then(res => {            
+                resolve(res);        
+            })        
+            .catch(err => {            
+                reject(err)        
+            })    
+        });
+    },
+    resetUserPwd(userId) {
+        return new Promise((resolve, reject) => {         
+            var url = [this.usersAdminUrl, userId.toString(), 'reset', 'password'].join("/")
+            restclient.put(url)
             .then(res => {            
                 resolve(res);        
             })        

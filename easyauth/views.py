@@ -17,8 +17,8 @@ from rest_framework.response import Response
 from rest_framework.views import exception_handler as rest_framework_exception_handler
 
 from easyauth import conf
-from easyauth.permissions import UserAdminPermission, IsSuperUser, IsAuthenticated, PermissionViewGetPermission, \
-    UserViewGetPermission, GroupViewGetPermission
+from easyauth.permissions import DjangoModelPermissionsWithAuthenticated, IsSuperUser, IsAuthenticated,\
+    PermissionViewGetPermission, GroupViewGetPermission, QueryUserModelPermission, AdminPasswordResetPermission
 from easyauth.serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer, \
     UserPasswordResetSerializer, UserDetailSerializer, UserLogoutSerializer, AdminResetUserPasswordSerializer, \
     GroupSerializer, PermissionSerializer, UserSerializerWithDepth, GroupSerializerWithDepth
@@ -64,7 +64,7 @@ class GroupViewSet(QueryLowPermAdminModelViewSet):
 
 
 class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
-    exclude_models = ['user', 'group', 'permission']
+    exclude_models = ['group', 'permission']
     permission_set_patterns = ['add_%(model_name)s', 'change_%(model_name)s', 'delete_%(model_name)s']
     exclude_permissions = []
     for m in exclude_models:
@@ -81,8 +81,8 @@ class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
 class UserViewSet(QueryLowPermAdminModelViewSet):
     queryset = get_user_model().objects.all()
     serializer_class = UserSerializer
-    maintain_permission_classes = (UserAdminPermission,)
-    query_permission_classes = (UserViewGetPermission,)
+    maintain_permission_classes = (DjangoModelPermissionsWithAuthenticated,)
+    query_permission_classes = (QueryUserModelPermission,)
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend, rest_framework.filters.SearchFilter, rest_framework.filters.OrderingFilter,)
 
     filter_fields = ('id', get_user_model().USERNAME_FIELD, 'last_name', 'first_name', 'is_active',
@@ -145,10 +145,10 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
 class AdminResetUsePwdView(GenericAPIView):
     queryset = get_user_model().objects.filter(is_active=True)
     serializer_class = AdminResetUserPasswordSerializer
-    permission_classes = (UserAdminPermission,)
+    permission_classes = (AdminPasswordResetPermission,)
     __url_re = re.compile(r".*\/users\/(\d+)\/reset\/password.*")
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         match_args = self.__url_re.search(request.path).groups()
         if len(match_args) == 1:
             self.kwargs['pk'] = long(match_args[0])
@@ -194,7 +194,7 @@ class PasswordResetView(GenericAPIView):
     serializer_class = UserPasswordResetSerializer
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         self.kwargs['pk'] = request.user.id
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
@@ -257,5 +257,3 @@ def exception_handler(exc, context):
     else:
         logger.error("Get Error %s: %s", exc.__class__, exc)
     return rest_framework_exception_handler(exc, context)
-
-
