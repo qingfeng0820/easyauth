@@ -291,12 +291,14 @@ Setup your own project via easyauth
     - run below command:
 
 .. code-block:: shell
+
     {your_app_name}/vue-ui> npm run build
 
 6). Deploy you pages to static folder
     - run below commands:
 
 .. code-block:: shell
+
     {your_app_name}> mkdir static
     {your_app_name}> cp vue-ui/build/* static/
 
@@ -311,120 +313,14 @@ Setup your own project via easyauth
     {your_app_name}/vue-ui> npm run build
 
 
-Tutorial
---------
+More configurations
+-------------------
 
 
-Add easyauth to your app
+backend Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Add easyauth in {Your app}/settings.py like below:
-
-.. code-block:: python
-
-    INSTALLED_APPS += (
-        # Default Django apps:
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
-        # Rest framework app
-        'rest_framework',
-        # easyauth app                                                                  #<----  Add easyauth app here
-        'easyauth',
-        # Your own app                                                                  #<----  Add your own app
-        'test'
-    )
-
-    # If add django-filter app to INSTALLED_APPS, the easyauth APIs can support filter by fields' values
-
-    REST_FRAMEWORK = {
-        # Use Django's standard `django.contrib.auth` permissions,
-        'DEFAULT_PERMISSION_CLASSES': (
-            'easyauth.permissions.IsAuthenticated',                                      #<---- Default permission check
-			# Should not use rest_framework.permissions.IsAuthenticated here.
-			# Because this class is not compatible with Django 1.9 since rest framework 3.4
-			# If you want to use rest_framework.permissions.IsAuthenticated, please set rest framework to 3.3
-			# Why I use Django 1.9?
-			# rest_framework.renderers.BrowsableAPIRenderer is not work well for the Django version after 1.9?
-			# If you don't need BrowsableAPIRenderer, you can upgrade you Django version I think.
-        ),
-        'DEFAULT_AUTHENTICATION_CLASSES': (
-            'easyauth.authentication.CsrfExemptSessionAuthentication',                   #<---- Disable crsf check
-            'rest_framework.authentication.BasicAuthentication'
-        ),
-        'DEFAULT_RENDERER_CLASSES': (
-            'rest_framework.renderers.JSONRenderer',
-            #  Enable BrowsableAPI
-            'rest_framework.renderers.BrowsableAPIRenderer',
-        ),
-        'DEFAULT_PARSER_CLASSES': (
-            'rest_framework.parsers.JSONParser',
-            'rest_framework.parsers.FormParser',
-            'rest_framework.parsers.MultiPartParser'
-        ),
-        'DEFAULT_PAGINATION_CLASS': 'easyauth.pagination.CustomizedPageNumberPagination', #<--- Set default pagination
-        'PAGE_SIZE': 500
-    }
-
-
-Specify your own User Model
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Create your own User Model (extends easyauth.models.AbstractUser) in {Your app}/models.py:
-
-.. code-block:: python
-
-    from easyauth.models import AbstractUser
-
-
-    class User(AbstractUser):
-        # you can define additional fields for your User Model
-
-        # You can specify the USERNAME_FIELD field.
-        # Default is phone
-        # USERNAME_FIELD = {Other field to stand for username}
-        # {Other field} = models.CharField(...)
-
-        # You can specify the USER_DEPART_FIELD field if you user model is grouped by department or company
-        # In this case, an admin in a company cannot maintain the users in other company
-        # Default value is None
-        # USER_DEPART_FIELD = "company"
-        # company = models.ForeignKey(Company, related_name='users', null=True)
-
-        pass
-
-
-Change AUTH_USER_MODEL to be your own User Model in {Your app}/settings.py:
-
-.. code-block:: python
-        
-    AUTH_USER_MODEL = 'test.User'
-    
-
-Expose easyauth APIs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Expose user admin APIs and user authentication related APIs in {Your app}/urls.py by below code:
-
-.. code-block:: python
-
-    from easyauth import urls as auth_urls
-    from easyauth import admin_urls as user_admin_urls
-
-    urlpatterns = [
-        # auth apis including login, password reset
-        url(r'^api-auth/', include(auth_urls)),
-        # user admin crud apis - only used by administrator
-        url(r'^api/', include(user_admin_urls)),
-    ]
-
-
-easyauth Configuration
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Add EASYAUTH_CONF in {Your app}/settings.py if you need to do some specific configuration:
+Add EASYAUTH_CONF in {your_app_name}/settings/product.py if you need to do some specific configuration:
 
 .. code-block:: python
 
@@ -450,28 +346,5 @@ Add EASYAUTH_CONF in {Your app}/settings.py if you need to do some specific conf
 More examples please see the test app in this repo
 
 
-DB init
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: python
-
-python manage.py makemigrations
-python manage.py makemigrations {your app name}
-python manage.py migrate
-
-
-Create a super user
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-python manage.py createsuperuser
-
-
- Run Test Server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: python
-
-python manage.py runserver 0.0.0.0:80
 
