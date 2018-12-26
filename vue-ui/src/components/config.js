@@ -1,5 +1,4 @@
-var baseURL = ''
-baseURL = 'http://localhost';
+var baseURL = 'http://localhost';
 if (process.env.NODE_ENV == 'development') {
     baseURL = 'http://localhost';
 }

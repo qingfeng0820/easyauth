@@ -11,6 +11,18 @@ License
 `BSD License <LICENSE.txt>`_
 
 
+Source code
+-----------
+`Github <https://github.com/qingfeng0820/easyauth>`_
+
+
+Develop environment
+-------------------
+- Python 2.7
+- pip
+- npm (install nodejs)
+
+
 Installation
 --------
 
@@ -22,8 +34,8 @@ from pypi
 
 
 
-Setup your own project
---------
+Setup your own project via easyauth
+-----------------------------------
 
 1. Create your app by below command:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -62,13 +74,17 @@ Setup your own project
 
         # Because the User model related views are defined in easyauth, you cannot create or change filter fields for filtering
         # But you can append the field in this sub user model to filter fields by below properties
-        FILTER_FIELDS = ('comany__name', ...)
+        FILTER_FIELDS = ('company__name', ...)
         SEARCH_FIELDS = (...)
-        ORDERING_FIELDS = (...)
+        ORDERING_FIELDS = ('company__name', ...)
 
 3). Add your own models, serializers, views
+    - modify {your_app_name}/models.py to add your own models
+    - create {your_app_name}/serializers.py to add your own serializers
+    - create {your_app_name}/views.py to add your own views
+    - modify {your_app_name}/urls.py to add your API urls
 
-4). Go to your app folder to initiate database
+4). Go to {your_app_name} folder to initiate database
     - run below commands:
 
 .. code-block:: shell
@@ -84,7 +100,8 @@ Setup your own project
 
     your_app_name> python manage.py createsuperuser
 
-6). Run your django based backend by below command:
+6). Run your django based backend:
+    - run below command:
 
 .. code-block:: shell
 
@@ -117,12 +134,181 @@ Setup your own project
             - /api-auth/password/change PUT: Change the current login user's password
             - /api-auth/register POST: Register User (This API can be disabled by configuration)
         - Your own APIs
+            - ...
 
 
 3. Setup frontend which based Vue + Element-UI
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1). Go to {your_app_name}/vue-ui folder, and run below command to install dependency libs
+    - run below command:
+
+.. code-block:: shell
+
+    {your_app_name}/vue-ui> npm install
+
+2). Configure your backend baseURL by changing  {your_app_name}/vue-ui/src/components/config.js
+    - see below code:
+
+.. code-block:: javascript
+
+    var baseURL = 'http://localhost';                ## <--- baseURL for production
+    if (process.env.NODE_ENV == 'development') {
+        baseURL = 'http://localhost';                ## <--- baseURL for development
+    }
+    ...
+
+3). Add your own vue pages to {your_app_name}/vue-ui/src/components/page/
+    - Common pages are under {your_app_name}/vue-ui/src/components/common/
+
+4). Change the menu in left slider bar by changing {your_app_name}/vue-ui/src/components/menus.js
+    - see below example code:
+
+.. code-block:: javascript
+
+    import i18n from '../i18n/i18n'
+    import permission from './common/permission'
+    import Dashboard from '@/components/page/Dashboard'
+    import HelloWorld from '@/components/HelloWorld'
+    import UserAdmin from '@/components/page/UserAdmin'
+    import RoleAdmin from '@/components/page/RoleAdmin'     // RoleAdmin and UserAdmin are default pages, you can just use it.
+    import YourSubMenuItem from '@/components/page/YourSubMenuItem'
+    import YourSubSubMenuItem from '@/components/page/YourSubSubMenuItem'
+
+    var menu = [
+            {
+                name: 'Dashboard',
+                path: '/dashboard',
+                component: Dashboard,
+                icon: 'el-icon-lx-home',
+                meta: {
+                    getTitle: function() {
+                        return i18n.t("page.homeTitle")
+                    },
+                },
+            },
+            {
+                name: 'UserAdmin',
+                path: '/userAdmin',
+                component: UserAdmin,
+                icon: 'el-icon-lx-people',
+                meta: {
+                    getTitle:  function() {
+                        return i18n.t("page.userAdminTitle")
+                    },
+                    // must have all permissions listed above to access this menu item
+                    requiredPermissions: ['query_group', 'query_permission', 'add_user', 'change_user', 'delete_user'],
+                },
+            },
+            {
+                name: 'RoleAdmin',
+                path: '/roleAdmin',
+                component: RoleAdmin,
+                icon: 'el-icon-lx-group',
+                meta: {
+                        getTitle: function() {
+                            return i18n.t("page.roleAdminTitle")
+                        },
+                        permissionCheck: function(user) {
+                            return permission.isSuperUser(user)
+                        }
+                    },
+            },
+            {
+                name: 'HelloWorld',
+                path: '/helloword',
+                component: HelloWorld,
+                icon: 'el-icon-lx-emoji',
+                meta: {
+                        getTitle: function() {
+                            return "HelloWorld"
+                        },
+                    },
+            },
+            {
+                name: 'HelloWorld',
+                path: '/helloword',
+                component: HelloWorld,
+                icon: 'el-icon-lx-emoji',
+                meta: {
+                        getTitle: function() {
+                            return "HelloWorld"
+                        },
+                    },
+            },
+            {
+                name: 'YourFolderMenu',
+                icon: 'xxx',
+                meta: {
+                        getTitle: function() {
+                            return "Your Folder Menu"
+                        },
+                    },
+                subs: [
+                      {
+                          name: 'YourSubFolderMenu',
+                          meta: {
+                              getTitle: function() {
+                                 return "Your Sub Folder Menu"
+                              },
+                              requiredPermissions: [...],
+                          },
+                          subs: [
+                               {
+                                   name: 'YourSubSubMenuItem',
+                                   path: '/yourSubSubMenuItem',
+                                   component: YourSubSubMenuItem,
+                                   meta: {
+                                       getTitle: function() {
+                                           return "Your Sub Sub Menu Item"
+                                       },
+                                   },
+                               },
+                               ...
+
+                          ]
+                      },
+                      {
+                          name: 'YourSubMenuItem',
+                          path: '/yourSubMenuItem',
+                          component: YourSubMenuItem,
+                          meta: {
+                               getTitle: function() {
+                                   return "Your Sub Menu Item"
+                               },
+                               requiredPermissions: [...],
+                          },
+                      },
+                      ...
+                ]
+            },
+    ]
 
 
+- screenshot for above menu
+.. image:: img/ui.JPG
+
+5). Build you pages
+    - run below command:
+
+.. code-block:: shell
+    {your_app_name}/vue-ui> npm run build
+
+6). Deploy you pages to static folder
+    - run below commands:
+
+.. code-block:: shell
+    {your_app_name}> mkdir static
+    {your_app_name}> cp vue-ui/build/* static/
+
+7). Access you pages
+    - Visit http://localhost/static/index.html
+
+8). if you are focus on pages development, you can use use dev model instead of steps 5 - 7
+    - run below command, then visit http://localhost:8080:
+
+.. code-block:: shell
+
+    {your_app_name}/vue-ui> npm run build
 
 
 Tutorial
@@ -234,33 +420,6 @@ Expose user admin APIs and user authentication related APIs in {Your app}/urls.p
         url(r'^api/', include(user_admin_urls)),
     ]
 
-
-API List:
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-- user group/role admin APIs (admin or super user)
-    - /api/groups GET: Get all user groups
-    - /api/groups POST: Create an user group  (Only accessed by super user)
-    - /api/groups/[group_id] GET: Get an user group
-    - /api/groups/[group_id] POST or PUT: Modify an user group (Only accessed by super user)
-    - /api/groups/[group_id] DELETE: Delete an user group (Only accessed by super user)
-
-- user admin APIs (admin or super user, if department enabled for user model, admin can only maintain users in the same department)
-    - /api/users GET: Get all users
-    - /api/users POST: Create an user (With default password. Cannot create a super user via Rest API)
-    - /api/users/[user_id] GET: Get a specific user
-    - /api/users/[user_id] POST or PUT: Modify a specific user
-    - /api/users/[user_id] DELETE: Delete a specific user
-    - /api/users/[user_id]/reset/password POST: Reset to default password for a specific user
-
-- authentication APIs
-    - /api-auth/login POST: User login
-    - /api-auth/logout POST (or GET if enabled): User logout
-    - /api-auth/me POST or PUT: Modify current login user
-    - /api-auth/me GET: Get current login user
-    - /api-auth/password/change POST: Change the current login user's password
-    - /api-auth/register POST: Register User (This API can be disabled by configuration)
-
-You must start with creating a superuser in backend (operate DB directly or use command "python manage.py createsuperuser")
 
 easyauth Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
