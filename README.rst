@@ -60,15 +60,14 @@ Setup your own project via easyauth
 
     class User(AbstractUser):
         # you can define additional fields for your User Model
-
         # You can specify the USERNAME_FIELD field.
         # Default is phone
         USERNAME_FIELD = {Other field to stand for username}
         {Other field} = models.CharField(...)
 
         # You can specify the USER_DEPART_FIELD field if you user model is grouped by department or company
-        # In this case, an admin in a company cannot maintain the users in other company
-        # Default value is None
+        # For with depart field case, the permitted user can only maintain the users in the same department.
+        # Default value is None for USER_DEPART_FIELD.
         USER_DEPART_FIELD = "company"
         company = models.ForeignKey(Company, related_name='users', null=True)
 
@@ -77,6 +76,7 @@ Setup your own project via easyauth
         FILTER_FIELDS = ('company__name', ...)
         SEARCH_FIELDS = (...)
         ORDERING_FIELDS = ('company__name', ...)
+        # You can have no implementation of this class (just add 'pass' in this class) if you just want to trial.
 
 3). Add your own models, serializers, views
     - modify {your_app_name}/models.py to add your own models
@@ -195,7 +195,7 @@ Setup your own project via easyauth
                     getTitle:  function() {
                         return i18n.t("page.userAdminTitle")
                     },
-                    // must have all permissions listed above to access this menu item
+                    // must have all permissions listed below to access this menu item
                     requiredPermissions: ['query_group', 'query_permission', 'add_user', 'change_user', 'delete_user'],
                 },
             },
@@ -253,6 +253,7 @@ Setup your own project via easyauth
                               requiredPermissions: [...],
                           },
                           subs: [
+                               // only can support three levels menu
                                {
                                    name: 'YourSubSubMenuItem',
                                    path: '/yourSubSubMenuItem',
