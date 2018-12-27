@@ -17,7 +17,7 @@
                 <el-input v-model="inputSearchWord" :placeholder="$t('placeholder.search')" class="handle-input mr10" style="float:right"></el-input>
             </div>
             <el-table :data="data" border class="table" ref="multipleTable"
-             @selection-change="handleSelectionChange" 
+             @selection-change="handleSelectionChange"
              :default-sort = "{prop: 'id', order: 'ascending'}"
              @sort-change="handleSortChange"
              stripe>
@@ -41,7 +41,7 @@
                 <el-table-column prop="user_permissions" :label="$t('label.privileges')" :formatter="permissionsColumnFormatter">
                 </el-table-column>
                 <el-table-column prop="last_login" :label="$t('label.lastLogin')" sortable="custom" :formatter="lastLoginFormatter" width="180">
-                </el-table-column>                
+                </el-table-column>
                 <el-table-column :label="$t('label.operations')" width="100" align="center">
                     <template slot-scope="scope">
                         <el-button type="text" :title="$t('label.edit')" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)"></el-button>
@@ -51,7 +51,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination background @current-change="handleCurrentChange" 
+                <el-pagination background @current-change="handleCurrentChange"
                  @size-change="handleSizeChange"
                  layout="total, sizes, prev, pager, next, jumper"
                  :page-size='page_size' :total="totalPage" :current-page=cur_page
@@ -82,7 +82,7 @@
                 -->
                 <el-form-item :label="$t('label.isActive')" :label-width="formLabelWidth">
                     <el-checkbox v-model="form.is_active"></el-checkbox>
-                </el-form-item>             
+                </el-form-item>
                 <el-form-item :label="$t('label.roles')" :label-width="formLabelWidth">
                     <div class="container">
                         <div class="drag-box">
@@ -337,6 +337,10 @@
             rolesColumnFormatter(row, column) {
                 var rolesStr = ""
                 var i = 0
+                if (row.is_superuser) {
+                    rolesStr += this.$t("label.superUser") + ', '
+                    i ++
+                }
                 if (row.groups) {
                     row.groups.forEach(r => {
                         if (++i > maxRoleOrPermissionCountForShowInTable) {
@@ -469,7 +473,7 @@
                             this.$message.success(`${this.$t("label.user")} "${delUserNames}" ${this.$t("message.deleteSuccessfully")}`)
                         }
                     }).catch(err => {
-                        failedCount ++ 
+                        failedCount ++
                         this.$message.error(`${this.$t("label.user")} ${item[this.$projConfig.loginFieldName]} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
                         if (removeIds.length + failedCount == selectedCount) {
                             removeIds.forEach(i => {

@@ -5,4 +5,4 @@ from easyauth.permissions import DBBasedPermissionsAll
 
 
 class DummyModelMaintainPermission(DBBasedPermissionsAll):
-    required_permission_names = ["test.maintain_dummy_model", ]
+    required_permission_names = ["maintain_dummy_model", ]

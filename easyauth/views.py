@@ -97,28 +97,21 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
     if get_user_model().ORDERING_FIELDS:
         ordering_fields += get_user_model().ORDERING_FIELDS
 
-    def dispatch(self, request, *args, **kwargs):
-        self.depart = None
-        self.is_superuser = False
-        user_model = get_user_model()
-        if user_model.USER_DEPART_FIELD is not None and request.user.is_authenticated() and not request.user.is_superuser:
-            self.depart = getattr(request.user, user_model.USER_DEPART_FIELD)
-        if request.user.is_superuser:
-            self.is_superuser = True
-
-        return super(UserViewSet, self).dispatch(request, *args, **kwargs)
-
     def create(self, request, *args, **kwargs):
-        if hasattr(self, 'depart') and self.depart is not None:
+        login_user = self.request.user
+        __depart = self.__getDepart(login_user)
+        if not login_user.is_superuser and __depart is not None:
             user_model = get_user_model()
-            depart_id = self.depart.id
+            depart_id = __depart.id
             request.data[user_model.USER_DEPART_FIELD] = depart_id
         return super(UserViewSet, self).create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        if hasattr(self, 'depart') and self.depart is not None:
+        login_user = self.request.user
+        __depart = self.__getDepart(login_user)
+        if not login_user.is_superuser and __depart is not None:
             user_model = get_user_model()
-            depart_id = self.depart.id
+            depart_id = __depart.id
             request.data[user_model.USER_DEPART_FIELD] = depart_id
         logger.info("Update user -> %s" % json.dumps(request.data))
         return super(UserViewSet, self).update(request, *args, **kwargs)
@@ -126,12 +119,14 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
     def get_queryset(self):
         user_model = get_user_model()
         self.queryset = user_model.objects.all()
-        if hasattr(self, 'depart') and self.depart is not None:
-            filter_prop = {user_model.USER_DEPART_FIELD: self.depart, 'is_superuser': False}
-            self.queryset = user_model.objects.filter(**filter_prop)
-        elif not hasattr(self, 'is_superuser') or not self.is_superuser:
-            filter_prop = {'is_superuser': False}
-            self.queryset = user_model.objects.filter(**filter_prop)
+        login_user = self.request.user
+        __depart = self.__getDepart(login_user)
+        filter_prop = {}
+        if not login_user.is_superuser:
+            filter_prop['is_superuser'] = False
+        if __depart is not None and __depart:
+            filter_prop = [user_model.USER_DEPART_FIELD]
+        self.queryset = user_model.objects.filter(**filter_prop)
         return super(UserViewSet, self).get_queryset()
 
     def get_serializer_class(self):
@@ -140,6 +135,12 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
             serializer_class = UserSerializerWithDepth
 
         return serializer_class
+
+    def __getDepart(self, user):
+        user_model = get_user_model()
+        if user_model.USER_DEPART_FIELD is not None and user.is_authenticated():
+            return getattr(user, user_model.USER_DEPART_FIELD)
+        return None
 
 
 class AdminResetUsePwdView(GenericAPIView):

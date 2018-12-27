@@ -76,8 +76,8 @@ DATABASES = {
 TIME_ZONE = 'Asia/Shanghai'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#language-code
-# LANGUAGE_CODE = 'en-us'
-LANGUAGE_CODE = 'zh-Hans'
+LANGUAGE_CODE = 'en'
+# LANGUAGE_CODE = 'zh-hans'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1

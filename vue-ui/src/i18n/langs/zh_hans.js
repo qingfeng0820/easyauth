@@ -2,7 +2,7 @@ import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 const zh_hans = {
     message: {
         'loginFailed': '登陆失败',
-        'networkIssue': '网络请求失败', 
+        'networkIssue': '网络请求失败',
         'inputUsername': '请输入用户名',
         'inputPassword': '请输入密码',
         'serverInternalError': '服务器内部错误',
@@ -26,7 +26,7 @@ const zh_hans = {
         'retreiveFailed': '获取失败',
         'resetUserPassword': '重置此用户密码',
         'resetUserPasswordSuccessfully': '重置密码成功',
-        'resetUserPasswordFailed': '重置密码失败',       
+        'resetUserPasswordFailed': '重置密码失败',
         'deleteWarning': '删除不可恢复，是否确定删除',
     },
     page: {
@@ -81,10 +81,12 @@ const zh_hans = {
         'dateJoined': '加入日期',
         'firstName': '名',
         'lastName': '姓',
-        'lastLogin': '上次登陆',
+        'lastLogin': '上次登陆时间',
+        'lastLoginLocation': '上次登陆地点',
         'regular': '正式',
         'outSource': '派遣',
         'resetPassword': '重置密码',
+        'anonymous': '未登录用户',
     },
     placeholder: {
         'username': '用户名',

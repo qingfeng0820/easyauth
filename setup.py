@@ -37,10 +37,10 @@ setup(
     },
     data_files=make_project.get_data_files_for_setup() + ['requirements.txt', 'test-requirements.txt'],
     description=(
-        'A simplified restful style authentication lib based on Django and Rest Framework.'
+        'A toolkit to set up web application with authentication and authorization functionalities based on Django.'
     ),
     long_description=open('README.rst').read(),
-    keywords=['Authentication', 'Django'],
+    keywords=['Authentication based on Django', 'Authorization based on Django', 'Python web application Auth'],
     platforms=["all"],
     classifiers=[
         'Programming Language :: Python',

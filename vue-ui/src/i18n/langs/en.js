@@ -3,7 +3,7 @@ import enLocale from 'element-ui/lib/locale/lang/en'
 const en = {
     message: {
         'loginFailed': 'Login failed',
-        'networkIssue': 'Network issue', 
+        'networkIssue': 'Network issue',
         'inputUsername': 'Please input your username',
         'inputPassword': 'Please input your password',
         'serverInternalError': 'Server internal error',
@@ -57,10 +57,10 @@ const en = {
         'confirmNewPassword': 'Confirm New Password',
         'logout': 'Logout',
         'confirm': 'OK',
-        'cancel': 'Cancel',      
+        'cancel': 'Cancel',
         'create': 'Create',
         'edit': 'Edit',
-        'delete': 'Delete',  
+        'delete': 'Delete',
         'name': 'Name',
         'role': 'Role',
         'roles': 'Roles',
@@ -83,9 +83,11 @@ const en = {
         'firstName': 'First Name',
         'lastName': 'Last Name',
         'lastLogin': 'Last Login',
+        'lastLoginLocation': 'Last Login Location',
         'regular': 'Staff',
         'outSource': 'Out Source',
         'resetPassword': 'Reset Password',
+        'anonymous': 'Anonymous',
     },
     placeholder: {
         'username': 'Username',

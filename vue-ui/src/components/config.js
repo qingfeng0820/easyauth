@@ -7,7 +7,8 @@ const config = {
     loginFieldName: "phone",
     backendBaseURL: baseURL,
     requestTimeout: 10000,
-    defaultLangCode: "zh-hans",
+//    defaultLangCode: "zh-hans",
+    defaultLangCode: "en",
 }
 
 

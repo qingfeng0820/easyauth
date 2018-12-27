@@ -6,13 +6,14 @@
                     <div class="user-info">
                         <img src="static/img/img.jpg" class="user-avator" alt="">
                         <div class="user-info-cont">
-                            <div class="user-info-name">{{name}}</div>
+                            <div class="user-info-name">{{fullName}}</div>
                             <div>{{role}}</div>
                         </div>
                     </div>
-                    <div class="user-info-list">上次登录时间：<span>2018-01-01</span></div>
-                    <div class="user-info-list">上次登录地点：<span>东莞</span></div>
+                    <div class="user-info-list">{{ $t('label.lastLogin') }}：<span>{{ lastLogin }}</span></div>
+                    <div class="user-info-list">{{ $t('label.lastLoginLocation') }}：<span>{{ lastLoginLocation }}</span></div>
                 </el-card>
+               <!--
                 <el-card shadow="hover" style="height:252px;">
                     <div slot="header" class="clearfix">
                         <span>语言详情</span>
@@ -26,7 +27,9 @@
                     HTML
                     <el-progress :percentage="0.9" color="#f56c6c"></el-progress>
                 </el-card>
+                -->
             </el-col>
+            <!--
             <el-col :span="16">
                 <el-row :gutter="20" class="mgb20">
                     <el-col :span="8">
@@ -88,6 +91,7 @@
                     </el-table>
                 </el-card>
             </el-col>
+            -->
         </el-row>
         <!-- <el-row :gutter="20">
             <el-col :span="12">
@@ -107,10 +111,8 @@
 <script>
     // import Schart from 'vue-schart';
     export default {
-        name: 'dashboard',
         data() {
             return {
-                name: localStorage.getItem('ms_username'),
                 todoList: [{
                         title: '今天要修复100个bug',
                         status: false,
@@ -187,8 +189,56 @@
         // },
         computed: {
             role() {
-                return this.name === 'admin' ? '超级管理员' : '普通用户';
-            }
+                if (this.$store.state.loginUser) {
+                    var roles = ""
+                    if (this.$store.state.loginUser.is_superuser) {
+                        roles += this.$t("label.superUser")
+                    }
+                    if (this.$store.state.loginUser.groups) {
+                        this.$store.state.loginUser.groups.forEach(group => {
+                            if (roles) {
+                                roles += ", "
+                            }
+                            roles += group.name
+                        })
+                    }
+                    if (!roles) {
+                        roles = this.$t("label.user")
+                    }
+                    return roles
+                } else {
+                    return this.$t("label.anonymous")
+                }
+            },
+            lastLogin() {
+                if (this.$store.state.loginUser) {
+                    return this.$utils.date.formatLocaleDateTime(this.$store.state.loginUser.last_login)
+                }
+                return ""
+            },
+            lastLoginLocation() {
+                if (this.$store.state.loginUser) {
+                    // can use IP to get location
+                    return this.$store.state.loginUser.last_login_ip
+                }
+                return ""
+            },
+            fullName(row, column) {
+                if (this.$store.state.loginUser) {
+                    var fullName = ''
+                    if (this.$store.state.loginUser.last_name) {
+                        fullName += this.$store.state.loginUser.last_name
+                    }
+                    if (this.$store.state.loginUser.first_name) {
+                        if (fullName) {
+                            fullName += ' '
+                        }
+                        fullName += this.$store.state.loginUser.first_name
+                    }
+                    return fullName
+                }
+                return ""
+            },
         },
         created(){
             // this.handleListener();

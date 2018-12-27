@@ -27,10 +27,10 @@ const hasRole = function(user, requiredRoles) {
                 passed = true;
                 return;
             }
-            if (passed) {
-                return;
-            }
         })
+        if (passed) {
+            return;
+        }
     });
     return passed;
 }
@@ -65,19 +65,21 @@ const __permissionCheck = function(userPermissions, checkPermissions) {
     if (!userPermissions) {
         return false
     }
-    var passed = true
+    var count = 0
     checkPermissions.forEach((permission, i) => {
+        var passed = false
         userPermissions.forEach((userPermission, j) => {
-            if (permission != userPermission.codename) {
-                passed = false;
+            if (permission == userPermission.codename) {
+                passed = true;
+                count++;
                 return;
             }
-            if (!passed) {
+            if (passed) {
                 return;
-            }   
+            }
         })
     });
-    return passed;
+    return count == checkPermissions.length;
 }
 
 export default {
