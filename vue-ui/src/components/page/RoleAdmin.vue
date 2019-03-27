@@ -16,10 +16,10 @@
                 <el-button type="primary" icon="el-icon-search" style="float:right" @click="search"> {{ $t('label.search') }} </el-button>
                 <el-input v-model="inputSearchWord" :placeholder="$t('placeholder.search')" class="handle-input mr10" style="float:right"></el-input>
             </div>
-            <el-table :data="data" border class="table" ref="multipleTable" 
-            @selection-change="handleSelectionChange" 
+            <el-table :data="data" border class="table" ref="multipleTable"
+            @selection-change="handleSelectionChange"
             :default-sort = "{prop: 'id', order: 'ascending'}"
-            @sort-change="handleSortChange" 
+            @sort-change="handleSortChange"
             stripe>
                 <el-table-column type="selection" width="55" align="center"></el-table-column>
                 <el-table-column prop="id" label="ID" width="120" sortable="custom" fixed>
@@ -36,7 +36,7 @@
                 </el-table-column>
             </el-table>
             <div class="pagination">
-                <el-pagination background @current-change="handleCurrentChange" 
+                <el-pagination background @current-change="handleCurrentChange"
                  @size-change="handleSizeChange"
                  layout="total, sizes, prev, pager, next, jumper"
                  :page-size='page_size' :total="totalPage" :current-page=cur_page
@@ -174,7 +174,6 @@
             clearForm() {
                 this.form = JSON.parse(JSON.stringify(emptyForm))
             },
-            // 获取 role和permission 数据
             getData() {
                 this.resetIdx()
                 this.clearMultipleSelection()
@@ -265,7 +264,7 @@
                 }
             },
             getDeleteRoleNames() {
-                if (this.idx > 0) {
+                if (this.idx > -1) {
                     return '"' + this.tableData[this.idx].name + '"'
                 } else if (this.multipleSelection.length > 0) {
                     var roles = ""
@@ -304,7 +303,7 @@
                             this.$message.success(`${this.$t("label.role")} "${delRoleNames}" ${this.$t("message.deleteSuccessfully")}`)
                         }
                     }).catch(err => {
-                        failedCount ++ 
+                        failedCount ++
                         this.$message.error(`${this.$t("label.role")} ${item.name} ${this.$t("message.deleteFailed")}: ${this.$utils.logstr(err.data)}`)
                         if (removeIds.length + failedCount == selectedCount) {
                             removeIds.forEach(i => {
@@ -344,6 +343,7 @@
                         this.resetIdx()
                         this.$message.success(`${this.$t("label.role")} ${this.form.id} ${this.$t('message.modifySuccessfully')}`);
                         this.clearForm()
+                        this.editRoleVisible = false;
                     }).catch(err => {
                         this.$message.error(`${this.$t("label.role")} ${this.form.id} ${this.$t("message.modifyFailed")}: ${this.$utils.logstr(err.data)}`)
                     })
@@ -354,15 +354,15 @@
                         this.$message.success(`${this.$t("label.role")} ${this.form.name}  ${this.$t('message.createSuccessfully')}`);
                         this.clearForm()
                         this.getData()
+                        this.editRoleVisible = false;
                     }).catch(err => {
                         this.$message.error(`${this.$t("label.role")} ${this.form.name} ${this.$t("message.createFailed")}: ${this.$utils.logstr(err.data)}`)
                     })
                 }
-                this.editRoleVisible = false;
             },
             // 确定删除
             deleteRow(){
-                if (this.idx > 0) {
+                if (this.idx > -1) {
                     var delRow = this.tableData[this.idx];
                     this.$easyauth.useradmin.deleteRole(delRow.id).then((res) => {
                         this.tableData.splice(this.idx, 1);

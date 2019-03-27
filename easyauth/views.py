@@ -125,7 +125,7 @@ class UserViewSet(QueryLowPermAdminModelViewSet):
         if not login_user.is_superuser:
             filter_prop['is_superuser'] = False
         if __depart is not None and __depart:
-            filter_prop = [user_model.USER_DEPART_FIELD]
+            filter_prop[user_model.USER_DEPART_FIELD] = __depart
         self.queryset = user_model.objects.filter(**filter_prop)
         return super(UserViewSet, self).get_queryset()
 

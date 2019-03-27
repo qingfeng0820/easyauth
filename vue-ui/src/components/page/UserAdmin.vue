@@ -38,8 +38,10 @@
                 </el-table-column>
                 <el-table-column prop="roles" :label="$t('label.roles')" :formatter="rolesColumnFormatter">
                 </el-table-column>
+				<!--
                 <el-table-column prop="user_permissions" :label="$t('label.privileges')" :formatter="permissionsColumnFormatter">
                 </el-table-column>
+				-->
                 <el-table-column prop="last_login" :label="$t('label.lastLogin')" sortable="custom" :formatter="lastLoginFormatter" width="180">
                 </el-table-column>
                 <el-table-column :label="$t('label.operations')" width="100" align="center">
@@ -109,6 +111,7 @@
                         </div>
                     </div>
                 </el-form-item>
+				<!-- don't expose the interface for assigning permissions to an user, only allow assigning roles to an user
                 <el-form-item :label="$t('label.privileges')" :label-width="formLabelWidth">
                     <div class="container">
                         <div class="drag-box">
@@ -135,6 +138,7 @@
                         </div>
                     </div>
                 </el-form-item>
+				-->
 
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -145,7 +149,7 @@
 
         <!-- 重置密码提示框 -->
         <el-dialog :title="$t('label.prompt')" :visible.sync="resetUserPwdVisible" width="500px" center>
-            <div class="del-dialog-cnt">{{ $t("message.resetUserPassword")}}: {{ (idx > 0) ? this.tableData[this.idx][this.$projConfig.loginFieldName] : '' }}？</div>
+            <div class="del-dialog-cnt">{{ $t("message.resetUserPassword")}}: {{ (idx > -1) ? this.tableData[this.idx][this.$projConfig.loginFieldName] : '' }}?</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="resetUserPwdVisible = false">{{ $t("label.cancel") }}</el-button>
                 <el-button type="primary" @click="resetUserPwd">{{ $t("label.confirm") }}</el-button>
@@ -434,7 +438,7 @@
                 }
             },
             getDeleteUserNames() {
-                if (this.idx > 0) {
+                if (this.idx > -1) {
                     return '"' + this.tableData[this.idx][this.$projConfig.loginFieldName] + '"'
                 } else if (this.multipleSelection.length > 0) {
                     var roles = ""
@@ -542,7 +546,7 @@
                 this.editUserVisible = false;
             },
             resetUserPwd() {
-                if (this.idx > 0) {
+                if (this.idx > -1) {
                     var resetRow = this.tableData[this.idx];
                     this.$easyauth.useradmin.resetUserPwd(resetRow.id).then((res) => {
                         this.resetIdx()
@@ -555,7 +559,7 @@
             },
             // 确定删除
             deleteRow() {
-                if (this.idx > 0) {
+                if (this.idx > -1) {
                     var delRow = this.tableData[this.idx];
                     this.$easyauth.useradmin.deleteUser(delRow.id).then((res) => {
                         this.tableData.splice(this.idx, 1);
