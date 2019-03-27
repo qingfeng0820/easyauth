@@ -2,5 +2,5 @@
 
 __author__ = 'Sherman Liu'
 __license__ = 'BSD'
-__version__ = '0.1.2'
+__version__ = '0.1.3'
 
